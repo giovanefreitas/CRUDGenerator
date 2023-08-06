@@ -22,6 +22,12 @@
             </div>
           </div>
           <div class="form-group row">
+            <label for="inputOwner" class="col-sm-2 col-form-label">Owner</label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="inputOwner" v-model="dadosConexao.owner" />
+            </div>
+          </div>
+          <div class="form-group row">
             <label for="inputUser" class="col-sm-2 col-form-label">Usuário</label>
             <div class="col-sm-10">
               <input type="text" class="form-control" id="inputUser" v-model="dadosConexao.user" />
@@ -87,12 +93,12 @@ const steps = ref([
   }
 ])
 const dadosConexao = ref({
-  host: '',
-  serviceName: '',
-  port: 1521,
-  owner: '',
-  user: '',
-  password: '',
+  host: `${import.meta.env.VITE_DB_HOST}`,
+  serviceName: `${import.meta.env.VITE_DB_SERVICE_NAME}`,
+  port: `${import.meta.env.VITE_DB_PORT}`,
+  owner: `${import.meta.env.VITE_DB_OWNER}`,
+  user: `${import.meta.env.VITE_DB_USER}`,
+  password: `${import.meta.env.VITE_DB_PASSWORD}`,
   commentAsLabel: true
 })
 
