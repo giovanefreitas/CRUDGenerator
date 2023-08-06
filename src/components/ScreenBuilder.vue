@@ -171,14 +171,18 @@
         </div>
 
         <div class="element-property">
-          <div class="row" v-for="subfield in selectedField.subfields">
+          <div class="row" v-for="subfield in selectedField.subfields" :key="subfield.id">
             <div class="col-sm-6">{{ subfield.label_display }}</div>
             <div class="col-sm-6 col-padding">
               <input type="text" class="form-control" v-model="subfield.label" />
             </div>
           </div>
         </div>
-        <div v-for="subfield in selectedField.subfields" class="element-property">
+        <div
+          v-for="subfield in selectedField.subfields"
+          class="element-property"
+          :key="subfield.id"
+        >
           <label>{{ subfield.label_display }}</label>
           <div>
             <label class="switch">
@@ -235,10 +239,12 @@
 import AppHeader from './AppHeader.vue'
 import GridElement from './elements/GridElement.vue'
 import { nextTick, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 import _ from 'lodash'
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`
+const route = useRoute()
 
 /*
 ELEMENTO:
@@ -469,7 +475,9 @@ onMounted(() => {
     opamunicipio: 0.7
   })
 
-  fetch(`${BASE_URL}/cadastros/64ac2f9f5cb711f1fd3c1e4d`)
+  console.log(route)
+
+  fetch(`${BASE_URL}/cadastros/${route.params.id}`)
     .then((resp) => resp.json())
     .then((dados) => {
       baseForm.value = dados

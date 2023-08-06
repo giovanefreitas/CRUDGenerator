@@ -283,7 +283,7 @@ export default {
   *******************************/
 .wizard__body {
   margin-top: 30px;
-  min-height: 400px;
+  min-height: calc(100vh - 150px);
   margin-left: 50px;
   margin-right: 50px;
   border: 1px solid #aebac4;
