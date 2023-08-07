@@ -1,8 +1,5 @@
 <template>
   <div>
-    <AppHeader>
-      <button @click="saveForm">Salvar</button>
-    </AppHeader>
     <div class="content-container build-container build-body">
       <div class="form-elements">
         <div class="element-main-header">Elementos</div>
@@ -22,7 +19,7 @@
 
       <div class="editor-area">
         <grid-element
-          :fields="baseForm.screens[0].subfields"
+          :fields="baseForm.subfields"
           v-on:elementFocus="elementFocus"
           v-on:deleteElement="deleteElement"
           parentRef="subfields"
@@ -236,15 +233,12 @@
 </template>
 
 <script setup>
-import AppHeader from './AppHeader.vue'
 import GridElement from './elements/GridElement.vue'
-import { nextTick, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { nextTick, onMounted, ref, watch } from 'vue'
 
 import _ from 'lodash'
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`
-const route = useRoute()
+const props = defineProps({ baseForm: { type: Object } })
 
 /*
 ELEMENTO:
@@ -377,10 +371,10 @@ const ELEMENTS = {
 }
 
 const selectedField = ref(null)
-const baseForm = ref({
-  name: 'Novo Projeto',
-  entities: [],
-  screens: [_.cloneDeep(ELEMENTS['grid'])]
+
+watch(props, async (newValue, oldValue) => {
+  console.log('incializarSortable')
+  incializarSortable()
 })
 
 function elementFocus(field) {
@@ -393,14 +387,14 @@ function elementFocus(field) {
 }
 
 function deleteElement(field, parentRef) {
-  const parent = _.get(baseForm.value, parentRef)
+  const parent = _.get(props.baseForm, parentRef)
   parent.splice(parent.indexOf(field), 1)
 }
 
 function receiveElement(element, newIndex, propRef) {
-  const parent = _.get(baseForm.value, propRef)
+  const parent = _.get(props.baseForm, propRef)
   console.log(propRef)
-  console.log(baseForm.value)
+  console.log(props.baseForm)
   console.log(parent)
 
   let novoItem = Object.assign(
@@ -425,6 +419,7 @@ function receiveElement(element, newIndex, propRef) {
     })
   }
 }
+
 function incializarSortable() {
   console.log('Incializando sortable')
 
@@ -453,7 +448,7 @@ function incializarSortable() {
     // update: function (event, ui) {
     //   if (ui.item.index() !== -1) {
     //     const propRef = event.target.getAttribute("data-prop-ref");
-    //     const parent = _.get(baseForm.value, propRef);
+    //     const parent = _.get(props.baseForm, propRef);
     //     var newIndex = ui.item.index();
 
     //     var oldIndex = parseInt(window.jQuery(this).attr("data-previndex"));
@@ -474,16 +469,6 @@ onMounted(() => {
     helper: 'clone',
     opamunicipio: 0.7
   })
-
-  console.log(route)
-
-  fetch(`${BASE_URL}/cadastros/${route.params.id}`)
-    .then((resp) => resp.json())
-    .then((dados) => {
-      baseForm.value = dados
-      selectedField.value = null
-      incializarSortable()
-    })
 })
 
 const blacklist = ['_id', 'isFocused']
@@ -493,17 +478,5 @@ function sanitizar(obj) {
       (obj[key] && typeof obj[key] === 'object' && sanitizar(obj[key]))
   })
   return obj
-}
-
-function saveForm() {
-  var objSanitizado = sanitizar(_.cloneDeep(baseForm.value))
-
-  fetch(new Request(`${BASE_URL}/cadastros/64ac2f9f5cb711f1fd3c1e4d`), {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(objSanitizado)
-  })
 }
 </script>
