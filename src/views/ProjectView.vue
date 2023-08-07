@@ -43,10 +43,19 @@ onMounted(() => {
     })
 })
 
+const blacklist = ['_id', 'isFocused']
+function sanitizar(obj) {
+  Object.keys(obj).forEach(function (key) {
+    ;(blacklist.indexOf(key) >= 0 && delete obj[key]) ||
+      (obj[key] && typeof obj[key] === 'object' && sanitizar(obj[key]))
+  })
+  return obj
+}
+
 function saveForm() {
   var objSanitizado = sanitizar(_.cloneDeep(baseForm.value))
 
-  fetch(new Request(`${BASE_URL}/cadastros/64ac2f9f5cb711f1fd3c1e4d`), {
+  fetch(new Request(`${BASE_URL}/cadastros/${baseForm.value._id}`), {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'

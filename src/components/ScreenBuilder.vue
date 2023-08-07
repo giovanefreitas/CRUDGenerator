@@ -11,18 +11,19 @@
           class="element-container element-template"
         >
           <div class="element-icon">
-            <span class="glyphicon glyphicon-header"></span>
+            <i class="bi" :class="elemento.icon"></i>
           </div>
           <div class="element-text">{{ elemento.label }}</div>
         </div>
       </div>
 
-      <div class="editor-area">
+      <div class="editor-area" @click.stop="limparSelecao">
         <grid-element
           :fields="baseForm.subfields"
           v-on:elementFocus="elementFocus"
           v-on:deleteElement="deleteElement"
           parentRef="subfields"
+          class="card shadow"
         >
         </grid-element>
       </div>
@@ -167,7 +168,7 @@
           </div>
         </div>
 
-        <div class="element-property">
+        <div v-if="selectedField.type != 'grid'" class="element-property">
           <div class="row" v-for="subfield in selectedField.subfields" :key="subfield.id">
             <div class="col-sm-6">{{ subfield.label_display }}</div>
             <div class="col-sm-6 col-padding">
@@ -175,33 +176,35 @@
             </div>
           </div>
         </div>
-        <div
-          v-for="subfield in selectedField.subfields"
-          class="element-property"
-          :key="subfield.id"
-        >
-          <label>{{ subfield.label_display }}</label>
-          <div>
-            <label class="switch">
-              <input type="checkbox" v-model="subfield.active" />
+        <div v-if="selectedField.type != 'grid'">
+          <div
+            v-for="subfield in selectedField.subfields"
+            class="element-property"
+            :key="subfield.id"
+          >
+            <label>{{ subfield.label_display }}</label>
+            <div>
+              <label class="switch">
+                <input type="checkbox" v-model="subfield.active" />
 
-              <div class="slider">
-                <div
-                  class="switch-on"
-                  v-bind:class="{ 'switch-on-active': subfield.active !== false }"
-                >
-                  ON
+                <div class="slider">
+                  <div
+                    class="switch-on"
+                    v-bind:class="{ 'switch-on-active': subfield.active !== false }"
+                  >
+                    ON
+                  </div>
+                  <div
+                    class="switch-off"
+                    v-bind:class="{
+                      'switch-off-active': subfield.active === true
+                    }"
+                  >
+                    OFF
+                  </div>
                 </div>
-                <div
-                  class="switch-off"
-                  v-bind:class="{
-                    'switch-off-active': subfield.active === true
-                  }"
-                >
-                  OFF
-                </div>
-              </div>
-            </label>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -264,12 +267,14 @@ const ELEMENTS = {
     type: 'header',
     tagname: 'h1',
     textalign: 'text-left',
+    icon: 'bi-type',
     subfields: []
   },
   address: {
     name: 'address',
     label: 'Endereço',
     type: 'address',
+    icon: 'bi-geo-alt',
     subfields: [
       {
         name: 'header',
@@ -336,6 +341,7 @@ const ELEMENTS = {
     label: 'Caixa de entrada',
     type: 'input',
     tagname: 'input',
+    icon: 'bi-input-cursor-text',
     subfields: []
   },
   checkboxes: {
@@ -344,6 +350,7 @@ const ELEMENTS = {
     type: 'checkboxes',
     tagname: 'input',
     options: 'Opção 1\nOpção 2\nOpção 3',
+    icon: 'bi-ui-checks',
     subfields: []
   },
   radio_buttons: {
@@ -352,6 +359,7 @@ const ELEMENTS = {
     type: 'radio_buttons',
     tagname: 'input',
     options: 'Opção 1\nOpção 2\nOpção 3',
+    icon: 'bi-ui-radios',
     subfields: []
   },
   select: {
@@ -360,12 +368,14 @@ const ELEMENTS = {
     type: 'select',
     tagname: 'select',
     options: 'Opção 1\nOpção 2\nOpção 3',
+    icon: 'bi-menu-button-fill',
     subfields: []
   },
   grid: {
     name: 'grid',
     label: 'Grid',
     type: 'grid',
+    icon: 'bi-layout-three-columns',
     subfields: []
   }
 }
@@ -471,12 +481,10 @@ onMounted(() => {
   })
 })
 
-const blacklist = ['_id', 'isFocused']
-function sanitizar(obj) {
-  Object.keys(obj).forEach(function (key) {
-    ;(blacklist.indexOf(key) >= 0 && delete obj[key]) ||
-      (obj[key] && typeof obj[key] === 'object' && sanitizar(obj[key]))
-  })
-  return obj
+function limparSelecao() {
+  if (selectedField.value) {
+    selectedField.value.isFocused = false
+    selectedField.value = null
+  }
 }
 </script>

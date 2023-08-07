@@ -1,5 +1,5 @@
 <template>
-  <div class="row">
+  <div class="row element-grid">
     <div
       v-bind:class="{ 'sortable drop-target': allowEdit, 'sortable-border': fields && fields.length === 0 }"
       class="col"
