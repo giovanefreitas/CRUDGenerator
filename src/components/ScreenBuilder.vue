@@ -32,7 +32,7 @@
         <div class="element-main-header">Properties</div>
         <div v-if="selectedField.type === 'header'" class="element-property">
           <div class="form-group">
-            <label>Heading Text</label>
+            <label>Título</label>
             <input type="text" class="form-control" v-model="selectedField.label" />
           </div>
         </div>
@@ -41,8 +41,16 @@
           class="element-property"
         >
           <div class="form-group">
-            <label>Label Text</label>
+            <label>Rótulo</label>
             <input type="text" class="form-control" v-model="selectedField.label" />
+          </div>
+          <div class="form-group">
+            <label>Identificador</label>
+            <input type="text" class="form-control" v-model="selectedField.name" />
+          </div>
+          <div class="form-group">
+            <label>Coluna</label>
+            <input type="text" class="form-control" v-model="selectedField.column" />
           </div>
         </div>
         <div v-if="selectedField.type === 'header'" class="element-property">
@@ -376,6 +384,13 @@ const ELEMENTS = {
     label: 'Grid',
     type: 'grid',
     icon: 'bi-layout-three-columns',
+    subfields: []
+  },
+  table: {
+    name: 'table',
+    label: 'Tabela',
+    type: 'table',
+    icon: 'bi-table',
     subfields: []
   }
 }

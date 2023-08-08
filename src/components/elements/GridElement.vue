@@ -1,7 +1,10 @@
 <template>
   <div class="row element-grid">
     <div
-      v-bind:class="{ 'sortable drop-target': allowEdit, 'sortable-border': fields && fields.length === 0 }"
+      v-bind:class="{
+        'sortable drop-target': allowEdit,
+        'sortable-border': fields && fields.length === 0
+      }"
       class="col"
       :data-prop-ref="`${parentRef}`"
     >
@@ -59,9 +62,10 @@
         >
         </GridElement>
 
-        <div v-if="field.visibility === 'hidden'" class="element-not-visible">
-          <span class="glyphicon glyphicon-exclamation-sign"></span> This field is hidden and will
-          not be seen on the form.
+        <TableElement v-if="field.type === 'table'" v-bind:field="fieldsubfields"> </TableElement>
+
+        <div v-if="field.hidden" class="element-not-visible">
+          <span class="glyphicon glyphicon-exclamation-sign"></span> Este campo é oculto e não será exibido no formulário.
         </div>
       </div>
     </div>
@@ -81,6 +85,7 @@ import InputElement from './InputElement.vue'
 import CheckboxesElement from './CheckboxesElement.vue'
 import RadioButtonsElement from './RadioButtonsElement.vue'
 import SelectElement from './SelectElement.vue'
+import TableElement from './TableElement.vue'
 
 const props = defineProps({
   fields: { type: Array },
