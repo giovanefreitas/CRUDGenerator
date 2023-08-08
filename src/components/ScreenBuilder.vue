@@ -53,6 +53,28 @@
             <input type="text" class="form-control" v-model="selectedField.column" />
           </div>
         </div>
+        <div v-if="selectedField.type === 'table'" class="element-property">
+          <div class="form-group">
+            <label>Tabela</label>
+            <input type="text" class="form-control" v-model="selectedField.table" />
+          </div>
+          <div class="element-main-header">Colunas</div>
+          <div v-for="column of selectedField.subfields" :key="column.id" class="form-group">
+            <label>Rótulo</label>
+            <input type="text" class="form-control" v-model="column.label" />
+          </div>
+          <button
+            type="button"
+            class="btn btn-primary"
+            @click="
+              addNewSubField(selectedField, {
+                label: `Coluna ${selectedField.subfields.length + 1}`
+              })
+            "
+          >
+            Adicionar
+          </button>
+        </div>
         <div v-if="selectedField.type === 'header'" class="element-property">
           <div class="form-group">
             <label>Sub-Heading Text</label>
@@ -176,15 +198,13 @@
           </div>
         </div>
 
-        <div v-if="selectedField.type != 'grid'" class="element-property">
+        <div v-if="selectedField.type != 'grid' && selectedField.type != 'table'" class="element-property">
           <div class="row" v-for="subfield in selectedField.subfields" :key="subfield.id">
             <div class="col-sm-6">{{ subfield.label_display }}</div>
             <div class="col-sm-6 col-padding">
               <input type="text" class="form-control" v-model="subfield.label" />
             </div>
           </div>
-        </div>
-        <div v-if="selectedField.type != 'grid'">
           <div
             v-for="subfield in selectedField.subfields"
             class="element-property"
@@ -266,6 +286,8 @@ ELEMENTO:
   isFocused: usado apenas no editor de formulários
   hidden: Indica se o componente deve ficar oculto no sistema gerado
   subheader: descrição adicional do campo, exibida no sistema gerado
+  column: Nome da coluna onde será salvo
+  table: Nome da databela onde a composição ou agregação será persistida
 */
 
 const ELEMENTS = {
@@ -501,5 +523,15 @@ function limparSelecao() {
     selectedField.value.isFocused = false
     selectedField.value = null
   }
+}
+
+function addNewSubField(field, options) {
+  if (!field.subfields) {
+    field.subfields = []
+  }
+
+  const newSubfield = _.cloneDeep(ELEMENTS.input)
+  Object.assign(newSubfield, options)
+  field.subfields.push(newSubfield)
 }
 </script>

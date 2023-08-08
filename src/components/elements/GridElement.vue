@@ -62,7 +62,7 @@
         >
         </GridElement>
 
-        <TableElement v-if="field.type === 'table'" v-bind:field="fieldsubfields"> </TableElement>
+        <TableElement v-if="field.type === 'table'" v-bind:field="field"> </TableElement>
 
         <div v-if="field.hidden" class="element-not-visible">
           <span class="glyphicon glyphicon-exclamation-sign"></span> Este campo é oculto e não será exibido no formulário.

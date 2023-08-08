@@ -3,29 +3,12 @@
     <table class="table">
       <thead>
         <tr>
-          <th scope="col">#</th>
-          <th scope="col">First</th>
-          <th scope="col">Last</th>
-          <th scope="col">Handle</th>
+          <th v-for="column of field.subfields" :key="column.id" scope="col">{{ column.label }}</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <th scope="row">1</th>
-          <td>Mark</td>
-          <td>Otto</td>
-          <td>@mdo</td>
-        </tr>
-        <tr>
-          <th scope="row">2</th>
-          <td>Jacob</td>
-          <td>Thornton</td>
-          <td>@fat</td>
-        </tr>
-        <tr>
-          <th scope="row">3</th>
-          <td colspan="2">Larry the Bird</td>
-          <td>@twitter</td>
+        <tr v-for="data, index of generatedData" :key="index">
+          <td v-for="column, indexCol of field.subfields" :key="column.id">{{ data[index][indexCol] }}</td>
         </tr>
       </tbody>
     </table>
@@ -40,5 +23,15 @@
 </template>
 
 <script setup>
+import { computed } from "vue"
+
 defineProps({ field: { type: Object } })
+
+const generatedData = computed(() =>{
+  return [
+    ["ASDFAS", 324, 'ADFASFA', 424234],
+    ['HSDFDJ', 3543, 'OIASDFKL', 33543],
+    ['CVASJF',3453,'ASFGVXLK', 97987],
+  ]
+})
 </script>
