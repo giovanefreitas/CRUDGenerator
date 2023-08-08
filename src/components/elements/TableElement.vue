@@ -8,7 +8,7 @@
       </thead>
       <tbody>
         <tr v-for="data, index of generatedData" :key="index">
-          <td v-for="column, indexCol of field.subfields" :key="column.id">{{ data[index][indexCol] }}</td>
+          <td v-for="column, indexCol of field.subfields" :key="column.id">{{ data[indexCol] }}</td>
         </tr>
       </tbody>
     </table>
@@ -24,14 +24,11 @@
 
 <script setup>
 import { computed } from "vue"
+import { faker } from '@faker-js/faker/locale/pt_BR';
 
 defineProps({ field: { type: Object } })
 
 const generatedData = computed(() =>{
-  return [
-    ["ASDFAS", 324, 'ADFASFA', 424234],
-    ['HSDFDJ', 3543, 'OIASDFKL', 33543],
-    ['CVASJF',3453,'ASFGVXLK', 97987],
-  ]
+  return Array.from({ length: 5 }, () => [faker.person.fullName(), faker.date.birthdate(), faker.internet.email(), faker.person.sex(),faker.color.human(), faker.vehicle.model()]);
 })
 </script>
