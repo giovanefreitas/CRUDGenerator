@@ -473,7 +473,7 @@ function incializarSortable() {
   window.jQuery('.drop-target').sortable({
     cursor: 'move',
     opamunicipio: 0.7,
-    cancel: '.editable',
+    cancel: '.cancel-drag',
     start: function (e, ui) {
       // creates a temporary attribute on the element with the old index
       window.jQuery(this).attr('data-previndex', ui.item.index())

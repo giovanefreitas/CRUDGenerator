@@ -18,7 +18,7 @@
       :key="field.id"
       >
         <i class="pi pi-arrows-alt" style="font-size: 2rem" />
-        <div v-bind:class="{ hide: field.isFocused !== true }" class="action-circles">
+        <div v-bind:class="{ hide: field.isFocused !== true }" class="action-circles cancel-drag">
           <div
             v-on:click="$emit('deleteElement', field, parentRef)"
             class="action-circle delete-circle"
@@ -31,25 +31,27 @@
           v-if="field.type === 'header'"
           v-bind:class="field.textalign"
           v-bind:field="field"
+          class="cancel-drag"
         >
         </HeaderElement>
 
-        <InputElement v-if="field.type === 'input'" v-bind:field="field"> </InputElement>
+        <InputElement v-if="field.type === 'input'" v-bind:field="field" class="cancel-drag"> </InputElement>
 
         <AddressElement
           v-if="field.type === 'address'"
           v-bind:field="field"
           v-on:elementFocus="$emit('elementFocus', field)"
+          class="cancel-drag"
         >
         </AddressElement>
 
-        <CheckboxesElement v-if="field.type === 'checkboxes'" v-bind:field="field">
+        <CheckboxesElement v-if="field.type === 'checkboxes'" v-bind:field="field" class="cancel-drag">
         </CheckboxesElement>
 
-        <RadioButtonsElement v-if="field.type === 'radio_buttons'" v-bind:field="field">
+        <RadioButtonsElement v-if="field.type === 'radio_buttons'" v-bind:field="field" class="cancel-drag">
         </RadioButtonsElement>
 
-        <SelectElement v-if="field.type === 'select'" v-bind:field="field"> </SelectElement>
+        <SelectElement v-if="field.type === 'select'" v-bind:field="field" class="cancel-drag"> </SelectElement>
 
         <GridElement
           v-if="field.type === 'grid'"
@@ -60,12 +62,13 @@
           v-on:deleteElement="
             (subfield) => $emit('deleteElement', subfield, `${parentRef}[${index}].subfields`)
           "
+          class="cancel-drag"
         >
         </GridElement>
 
-        <TableElement v-if="field.type === 'table'" v-bind:field="field"> </TableElement>
+        <TableElement v-if="field.type === 'table'" v-bind:field="field" class="cancel-drag"> </TableElement>
 
-        <div v-if="field.hidden" class="element-not-visible">
+        <div v-if="field.hidden" class="element-not-visible cancel-drag">
           <span class="glyphicon glyphicon-exclamation-sign"></span> Este campo é oculto e não será exibido no formulário.
         </div>
       </div>
