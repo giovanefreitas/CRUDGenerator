@@ -1,4 +1,5 @@
 import './assets/main.scss'
+import 'primeicons/primeicons.css';
 import "bootstrap";
 import "bootstrap-icons/bootstrap-icons.svg";
 import "bootstrap-icons/font/bootstrap-icons.css";

@@ -1,22 +1,23 @@
 <template>
   <div class="row element-grid">
     <div
-      v-bind:class="{
-        'sortable drop-target': allowEdit,
-        'sortable-border': fields && fields.length === 0
-      }"
+    v-bind:class="{
+      'sortable drop-target': allowEdit,
+      'sortable-border': fields && fields.length === 0
+    }"
       class="col"
       :data-prop-ref="`${parentRef}`"
-    >
-      <div
-        :id="field.id"
-        v-bind:class="{ 'focused-element': field.isFocused === true }"
-        v-on:click.stop="$emit('elementFocus', field)"
-        tabindex="-1"
-        class="form-group form-element-container"
-        v-for="(field, index) in fields"
-        :key="field.id"
       >
+      <div
+      :id="field.id"
+      v-bind:class="{ 'focused-element': field.isFocused === true }"
+      v-on:click.stop="$emit('elementFocus', field)"
+      tabindex="-1"
+      class="form-group form-element-container"
+      v-for="(field, index) in fields"
+      :key="field.id"
+      >
+        <i class="pi pi-arrows-alt" style="font-size: 2rem" />
         <div v-bind:class="{ hide: field.isFocused !== true }" class="action-circles">
           <div
             v-on:click="$emit('deleteElement', field, parentRef)"
@@ -86,6 +87,7 @@ import CheckboxesElement from './CheckboxesElement.vue'
 import RadioButtonsElement from './RadioButtonsElement.vue'
 import SelectElement from './SelectElement.vue'
 import TableElement from './TableElement.vue'
+import { PrimeIcons } from 'primevue/api';
 
 const props = defineProps({
   fields: { type: Array },
