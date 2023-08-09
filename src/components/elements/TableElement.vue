@@ -1,37 +1,59 @@
 <template>
-  <div class="row">
-    <table class="table">
-      <thead>
-        <tr>
-          <th v-for="column of field.subfields" :key="column.id" scope="col">{{ column.label }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(data, index) of generatedData" :key="index">
-          <td v-for="(column, indexCol) of field.subfields" :key="column.id">
-            {{ data[indexCol] }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <ul class="pagination">
-      <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-      <li class="page-item"><a class="page-link" href="#">1</a></li>
-      <li class="page-item"><a class="page-link" href="#">2</a></li>
-      <li class="page-item"><a class="page-link" href="#">3</a></li>
-      <li class="page-item"><a class="page-link" href="#">Next</a></li>
-    </ul>
+  <div>
+    <DataTable
+      :value="products"
+      :reorderableColumns="true"
+      @columnReorder="onColReorder"
+      @rowReorder="onRowReorder"
+      tableStyle="min-width: 50rem"
+    >
+      <Column rowReorder headerStyle="width: 3rem" :reorderableColumn="false" />
+      <Column
+        v-for="col of columns"
+        :field="col.field"
+        :header="col.header"
+        :key="col.field"
+      ></Column>
+    </DataTable>
+    <Toast />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useToast } from 'primevue/usetoast'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import Toast from 'primevue/toast'
 import { faker } from '@faker-js/faker/locale/pt_BR'
 
-defineProps({ field: { type: Object } })
+const props = defineProps({ field: { type: Object } })
 
-const generatedData = computed(() => {
-  return Array.from({ length: 5 }, () => [
+onMounted(() => {
+  generateData()
+  refreshColumns()
+})
+
+const toast = useToast()
+const columns = ref()
+const products = ref()
+
+watch(props, async (newValue, oldValue) => {
+  console.log('Atualizando tabela')
+  generateData()
+  refreshColumns()
+})
+
+const onColReorder = () => {
+  toast.add({ severity: 'success', summary: 'Column Reordered', life: 3000 })
+}
+const onRowReorder = (event) => {
+  products.value = event.value
+  toast.add({ severity: 'success', summary: 'Rows Reordered', life: 3000 })
+}
+
+function generateData() {
+  products.value = Array.from({ length: 5 }, () => [
     faker.person.fullName(),
     faker.date.birthdate().toLocaleDateString(),
     faker.internet.email(),
@@ -39,5 +61,9 @@ const generatedData = computed(() => {
     faker.color.human(),
     faker.vehicle.model()
   ])
-})
+}
+
+function refreshColumns() {
+  columns.value = props.field.subfields.map((item) => ({ field: item.name, header: item.label }))
+}
 </script>
