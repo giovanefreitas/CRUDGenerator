@@ -20,27 +20,35 @@ import { onMounted, ref } from 'vue'
 import _ from 'lodash'
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`
-const route = useRoute()
-const selectedScreen = ref({});
-const baseForm = ref({
+const EMPTY_PROJECT = {
   name: 'Novo Projeto',
   entities: [],
   screens: [
     {
       name: 'grid',
-      label: 'Grid',
+      label: 'Nova tela',
       type: 'grid',
       subfields: []
     }
   ]
-})
+}
+
+const route = useRoute()
+const selectedScreen = ref({})
+const baseForm = ref(_.cloneDeep(EMPTY_PROJECT))
 
 onMounted(() => {
-  fetch(`${BASE_URL}/cadastros/${route.params.id}`)
-    .then((resp) => resp.json())
-    .then((dados) => {
-      baseForm.value = dados
-    })
+  if (route.params.id != 'new') {
+    fetch(`${BASE_URL}/cadastros/${route.params.id}`)
+      .then((resp) => resp.json())
+      .then((dados) => {
+        baseForm.value = dados
+        selectedScreen.value = baseForm.value.screens[0]
+      })
+  } else {
+    baseForm.value = EMPTY_PROJECT
+    selectedScreen.value = baseForm.value.screens[0]
+  }
 })
 
 const blacklist = ['_id', 'isFocused']

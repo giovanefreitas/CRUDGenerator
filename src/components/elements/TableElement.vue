@@ -7,8 +7,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="data, index of generatedData" :key="index">
-          <td v-for="column, indexCol of field.subfields" :key="column.id">{{ data[indexCol] }}</td>
+        <tr v-for="(data, index) of generatedData" :key="index">
+          <td v-for="(column, indexCol) of field.subfields" :key="column.id">
+            {{ data[indexCol] }}
+          </td>
         </tr>
       </tbody>
     </table>
@@ -23,12 +25,19 @@
 </template>
 
 <script setup>
-import { computed } from "vue"
-import { faker } from '@faker-js/faker/locale/pt_BR';
+import { computed } from 'vue'
+import { faker } from '@faker-js/faker/locale/pt_BR'
 
 defineProps({ field: { type: Object } })
 
-const generatedData = computed(() =>{
-  return Array.from({ length: 5 }, () => [faker.person.fullName(), faker.date.birthdate(), faker.internet.email(), faker.person.sex(),faker.color.human(), faker.vehicle.model()]);
+const generatedData = computed(() => {
+  return Array.from({ length: 5 }, () => [
+    faker.person.fullName(),
+    faker.date.birthdate().toLocaleDateString(),
+    faker.internet.email(),
+    faker.person.sex(),
+    faker.color.human(),
+    faker.vehicle.model()
+  ])
 })
 </script>
