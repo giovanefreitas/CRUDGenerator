@@ -471,7 +471,6 @@ function incializarSortable() {
   console.log('Incializando sortable')
 
   window.jQuery('.drop-target').sortable({
-    cursor: 'move',
     opamunicipio: 0.7,
     cancel: '.cancel-drag',
     start: function (e, ui) {

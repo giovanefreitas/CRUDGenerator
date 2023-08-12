@@ -1,13 +1,12 @@
 <template>
   <div>
+    <h5>{{ field.label }}</h5>
     <DataTable
       :value="products"
       :reorderableColumns="true"
       @columnReorder="onColReorder"
-      @rowReorder="onRowReorder"
       tableStyle="min-width: 50rem"
     >
-      <Column rowReorder headerStyle="width: 3rem" :reorderableColumn="false" />
       <Column
         v-for="col of columns"
         :field="col.field"
@@ -15,16 +14,17 @@
         :key="col.field"
       ></Column>
     </DataTable>
-    <Toast />
+    <div style="pointer-events: none">
+      <Paginator :rows="10" :totalRecords="120" :rowsPerPageOptions="[10, 20, 30]"></Paginator>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import { useToast } from 'primevue/usetoast'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import Toast from 'primevue/toast'
+import Paginator from 'primevue/paginator'
 import { faker } from '@faker-js/faker/locale/pt_BR'
 
 const props = defineProps({ field: { type: Object } })
@@ -34,36 +34,61 @@ onMounted(() => {
   refreshColumns()
 })
 
-const toast = useToast()
 const columns = ref()
 const products = ref()
 
-watch(props, async (newValue, oldValue) => {
-  console.log('Atualizando tabela')
-  generateData()
-  refreshColumns()
+watch(props.field, async (newValue, oldValue) => {
+  if (newValue.subfields.length != oldValue.subfields.length) {
+    console.log('Atualizando tabela')
+    generateData()
+    refreshColumns()
+  }
 })
 
-const onColReorder = () => {
-  toast.add({ severity: 'success', summary: 'Column Reordered', life: 3000 })
-}
-const onRowReorder = (event) => {
-  products.value = event.value
-  toast.add({ severity: 'success', summary: 'Rows Reordered', life: 3000 })
+const onColReorder = (dragEvent) => {
+  console.log(dragEvent)
+  props.field.subfields = moveArrayItem(
+    props.field.subfields,
+    dragEvent.dragIndex,
+    dragEvent.dropIndex
+  )
+  console.log(String(props.field.subfields.map((item) => item.name)))
 }
 
 function generateData() {
-  products.value = Array.from({ length: 5 }, () => [
-    faker.person.fullName(),
-    faker.date.birthdate().toLocaleDateString(),
-    faker.internet.email(),
-    faker.person.sex(),
-    faker.color.human(),
-    faker.vehicle.model()
-  ])
+  products.value = Array.from(
+    { length: 5 },
+    () => {
+      const row = {}
+      for (let column of props.field.subfields) {
+        row[column.name] = faker.vehicle.model()
+      }
+
+      return row
+    }
+    // faker.person.fullName(),
+    // faker.date.birthdate().toLocaleDateString(),
+    // faker.internet.email(),
+    // faker.person.sex(),
+    // faker.color.human(),
+    // faker.vehicle.model()
+  )
+  console.log(products.value)
 }
 
 function refreshColumns() {
   columns.value = props.field.subfields.map((item) => ({ field: item.name, header: item.label }))
+  console.log(columns.value)
+}
+
+function moveArrayItem(arr, old_index, new_index) {
+  if (new_index >= arr.length) {
+    var k = new_index - arr.length + 1
+    while (k--) {
+      arr.push(undefined)
+    }
+  }
+  arr.splice(new_index, 0, arr.splice(old_index, 1)[0])
+  return arr // for testing
 }
 </script>

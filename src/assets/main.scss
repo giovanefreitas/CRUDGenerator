@@ -219,7 +219,7 @@ a {
 #droppable {
   padding: 25px;
 }
-
+/*
 @keyframes circle-ripple-1 {
   0% {
     border-radius: 30px;
@@ -261,7 +261,7 @@ a {
     width: 84px;
   }
 }
-
+*/
 .editable {
   cursor: default;
   display: inline-block;
@@ -395,7 +395,6 @@ footer.site-footer {
 }
 
 .form-element-container {
-  cursor: move;
   padding: 12px 36px;
   margin: 0;
   background-color: #fff;
@@ -829,4 +828,17 @@ input:checked + .slider:before {
   background-color: #fff;
   border: 2px dashed #eee;
   border-radius: 5px;
+}
+
+.icon-move {
+  display: none;
+  float: left;
+  top: 0px;
+  left: 5px;
+  position: relative;
+  font-size: 1.5rem;
+}
+
+.field-element:hover .icon-move {
+  display: block;
 }

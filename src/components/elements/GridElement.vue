@@ -1,75 +1,79 @@
 <template>
   <div class="row element-grid">
     <div
-    v-bind:class="{
-      'sortable drop-target': allowEdit,
-      'sortable-border': fields && fields.length === 0
-    }"
+      v-bind:class="{
+        'sortable drop-target': allowEdit,
+        'sortable-border': fields && fields.length === 0
+      }"
       class="col"
       :data-prop-ref="`${parentRef}`"
-      >
+    >
       <div
-      :id="field.id"
-      v-bind:class="{ 'focused-element': field.isFocused === true }"
-      v-on:click.stop="$emit('elementFocus', field)"
-      tabindex="-1"
-      class="form-group form-element-container"
-      v-for="(field, index) in fields"
-      :key="field.id"
+        v-for="(field, index) in fields"
+        :key="field.id"
+        class="col field-element"
+        v-on:click.stop="$emit('elementFocus', field)"
       >
-        <i class="pi pi-arrows-alt" style="font-size: 2rem" />
-        <div v-bind:class="{ hide: field.isFocused !== true }" class="action-circles cancel-drag">
-          <div
-            v-on:click="$emit('deleteElement', field, parentRef)"
-            class="action-circle delete-circle"
-          >
-            <span class="glyphicon glyphicon-trash delete-trash"></span>
-            <span class="delete-text">Remove</span>
-          </div>
+        <div class="icon-move">
+          <i class="pi pi-arrows-alt" />
         </div>
-        <HeaderElement
-          v-if="field.type === 'header'"
-          v-bind:class="field.textalign"
-          v-bind:field="field"
-          class="cancel-drag"
+        <div
+          :id="field.id"
+          v-bind:class="{ 'focused-element': field.isFocused === true }"
+          tabindex="-1"
+          class="form-group form-element-container cancel-drag"
         >
-        </HeaderElement>
+          <div v-bind:class="{ hide: field.isFocused !== true }" class="action-circles">
+            <div
+              v-on:click="$emit('deleteElement', field, parentRef)"
+              class="action-circle delete-circle"
+            >
+              <span class="glyphicon glyphicon-trash delete-trash"></span>
+              <span class="delete-text">Remove</span>
+            </div>
+          </div>
+          <HeaderElement
+            v-if="field.type === 'header'"
+            v-bind:class="field.textalign"
+            v-bind:field="field"
+          >
+          </HeaderElement>
 
-        <InputElement v-if="field.type === 'input'" v-bind:field="field" class="cancel-drag"> </InputElement>
+          <InputElement v-if="field.type === 'input'" v-bind:field="field"> </InputElement>
 
-        <AddressElement
-          v-if="field.type === 'address'"
-          v-bind:field="field"
-          v-on:elementFocus="$emit('elementFocus', field)"
-          class="cancel-drag"
-        >
-        </AddressElement>
+          <AddressElement
+            v-if="field.type === 'address'"
+            v-bind:field="field"
+            v-on:elementFocus="$emit('elementFocus', field)"
+          >
+          </AddressElement>
 
-        <CheckboxesElement v-if="field.type === 'checkboxes'" v-bind:field="field" class="cancel-drag">
-        </CheckboxesElement>
+          <CheckboxesElement v-if="field.type === 'checkboxes'" v-bind:field="field">
+          </CheckboxesElement>
 
-        <RadioButtonsElement v-if="field.type === 'radio_buttons'" v-bind:field="field" class="cancel-drag">
-        </RadioButtonsElement>
+          <RadioButtonsElement v-if="field.type === 'radio_buttons'" v-bind:field="field">
+          </RadioButtonsElement>
 
-        <SelectElement v-if="field.type === 'select'" v-bind:field="field" class="cancel-drag"> </SelectElement>
+          <SelectElement v-if="field.type === 'select'" v-bind:field="field"> </SelectElement>
 
-        <GridElement
-          v-if="field.type === 'grid'"
-          v-bind:fields="field.subfields"
-          v-bind:columns="field.columns"
-          v-bind:parentRef="`${parentRef}[${index}].subfields`"
-          v-on:elementFocus="(subfield) => $emit('elementFocus', subfield)"
-          v-on:deleteElement="
-            (subfield) => $emit('deleteElement', subfield, `${parentRef}[${index}].subfields`)
-          "
-          class="cancel-drag"
-        >
-        </GridElement>
+          <GridElement
+            v-if="field.type === 'grid'"
+            v-bind:fields="field.subfields"
+            v-bind:columns="field.columns"
+            v-bind:parentRef="`${parentRef}[${index}].subfields`"
+            v-on:elementFocus="(subfield) => $emit('elementFocus', subfield)"
+            v-on:deleteElement="
+              (subfield) => $emit('deleteElement', subfield, `${parentRef}[${index}].subfields`)
+            "
+          >
+          </GridElement>
 
-        <TableElement v-if="field.type === 'table'" v-bind:field="field" class="cancel-drag"> </TableElement>
+          <TableElement v-if="field.type === 'table'" v-bind:field="field"> </TableElement>
 
-        <div v-if="field.hidden" class="element-not-visible cancel-drag">
-          <span class="glyphicon glyphicon-exclamation-sign"></span> Este campo é oculto e não será exibido no formulário.
+          <div v-if="field.hidden" class="element-not-visible">
+            <span class="glyphicon glyphicon-exclamation-sign"></span> Este campo é oculto e não
+            será exibido no formulário.
+          </div>
         </div>
       </div>
     </div>
@@ -90,7 +94,7 @@ import CheckboxesElement from './CheckboxesElement.vue'
 import RadioButtonsElement from './RadioButtonsElement.vue'
 import SelectElement from './SelectElement.vue'
 import TableElement from './TableElement.vue'
-import { PrimeIcons } from 'primevue/api';
+import { PrimeIcons } from 'primevue/api'
 
 const props = defineProps({
   fields: { type: Array },
