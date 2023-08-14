@@ -28,7 +28,7 @@
         </grid-element>
       </div>
 
-      <div class="element-properties" v-if="selectedField">
+      <div class="element-properties">
         <div class="element-main-header">Properties</div>
         <div v-if="selectedField.type === 'header'" class="element-property">
           <div class="form-group">
@@ -36,8 +36,22 @@
             <input type="text" class="form-control" v-model="selectedField.label" />
           </div>
         </div>
+        <div v-if="selectedField.type" class="element-property">
+          <div class="form-group">
+            <label>Largura da coluna</label>
+            <input
+              type="number"
+              class="form-control"
+              v-model="selectedField.cols"
+              min="1"
+              max="12"
+            />
+          </div>
+        </div>
         <div
-          v-if="selectedField.type !== 'header' && selectedField.type !== 'grid'"
+          v-if="
+            selectedField.type && selectedField.type !== 'header' && selectedField.type !== 'grid'
+          "
           class="element-property"
         >
           <div class="form-group">
@@ -73,7 +87,11 @@
           </div>
           <div v-if="selectedField.type == 'relationship'" class="form-group">
             <label>Coluna de descrição e busca</label>
-            <input type="text" class="form-control" v-model="selectedField.referencedDescribeColumn" />
+            <input
+              type="text"
+              class="form-control"
+              v-model="selectedField.referencedDescribeColumn"
+            />
           </div>
         </div>
         <div v-if="selectedField.type === 'table'" class="element-property">
@@ -262,7 +280,7 @@
           </div>
         </div>
 
-        <div class="element-property">
+        <div v-if="selectedField.type" class="element-property">
           <label>Ocultar campo</label>
           <div>
             <label class="switch">
@@ -304,6 +322,7 @@ ELEMENTO:
   name: variáveis e colunas
   label: exibição na tela do sistema gerado
   label_display: exibição na tela do editor de formulários
+  cols: Número de colunas que serão utilizadas em uma grade de 12 colunas
   placeholder: dica de tela exibida no sistema gerado
   tagname: tag html a ser usada
   textalign: css de alinhamento
@@ -456,7 +475,7 @@ const ELEMENTS = {
   }
 }
 
-const selectedField = ref(null)
+const selectedField = ref({})
 
 watch(props, async (newValue, oldValue) => {
   console.log('incializarSortable')
@@ -559,7 +578,7 @@ onMounted(() => {
 function limparSelecao() {
   if (selectedField.value) {
     selectedField.value.isFocused = false
-    selectedField.value = null
+    selectedField.value = {}
   }
 }
 

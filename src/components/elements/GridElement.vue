@@ -5,23 +5,23 @@
         'sortable drop-target': allowEdit,
         'sortable-border': fields && fields.length === 0
       }"
-      class="col"
+      class="row"
       :data-prop-ref="`${parentRef}`"
     >
       <div
         v-for="(field, index) in fields"
         :key="field.id"
-        class="col field-element"
+        :class="`col-sm-12 col-md-6 col-xl-${field.cols} field-element p-2`"
         v-on:click.stop="$emit('elementFocus', field)"
       >
         <div class="icon-move">
-          <i class="pi pi-arrows-alt" />
+          <i class="pi pi-arrows-alt"></i>
         </div>
         <div
           :id="field.id"
           v-bind:class="{ 'focused-element': field.isFocused === true }"
           tabindex="-1"
-          class="form-group form-element-container cancel-drag"
+          class="form-group form-element-container cancel-drag w-100"
         >
           <div v-bind:class="{ hide: field.isFocused !== true }" class="action-circles">
             <div
