@@ -23,7 +23,7 @@
           v-on:elementFocus="elementFocus"
           v-on:deleteElement="deleteElement"
           parentRef="subfields"
-          class="card shadow"
+          class="card shadow pt-4 pb-4"
         >
         </grid-element>
       </div>
@@ -99,21 +99,13 @@
             <label>Tabela</label>
             <input type="text" class="form-control" v-model="selectedField.table" />
           </div>
-          <div class="element-main-header">Colunas</div>
-          <div v-for="column of selectedField.subfields" :key="column.id" class="form-group">
-            <label>Rótulo</label>
-            <input type="text" class="form-control" v-model="column.label" />
-          </div>
           <button
             type="button"
             class="btn btn-primary"
-            @click="
-              addNewSubField(selectedField, {
-                label: `Coluna ${selectedField.subfields.length + 1}`
-              })
-            "
+            data-bs-toggle="modal"
+            data-bs-target="#tableEditor"
           >
-            Adicionar
+            Editar tabela
           </button>
         </div>
         <div v-if="selectedField.type === 'header'" class="element-property">
@@ -305,10 +297,42 @@
       </div>
     </div>
   </div>
+  <!-- Modal -->
+  <div
+    class="modal fade"
+    id="tableEditor"
+    tabindex="-1"
+    aria-labelledby="tableEditorLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="tableEditorLabel">
+            Editar tabela {{ selectedField.name }}
+          </h1>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <AttributesTable :fields="selectedField.subfields" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import GridElement from './elements/GridElement.vue'
+import AttributesTable from './internal/AttributesTable.vue'
 import { nextTick, onMounted, ref, watch } from 'vue'
 
 import _ from 'lodash'
@@ -531,6 +555,7 @@ function incializarSortable() {
   window.jQuery('.drop-target').sortable({
     opamunicipio: 0.7,
     cancel: '.cancel-drag',
+    delay: 150,
     start: function (e, ui) {
       // creates a temporary attribute on the element with the old index
       window.jQuery(this).attr('data-previndex', ui.item.index())

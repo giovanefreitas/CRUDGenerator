@@ -11,7 +11,7 @@
       <div
         v-for="(field, index) in fields"
         :key="field.id"
-        :class="`col-sm-12 col-md-6 col-xl-${field.cols} field-element p-2`"
+        :class="`col-sm-12 col-md-6 col-xl-${field.cols} field-element`"
         v-on:click.stop="$emit('elementFocus', field)"
       >
         <div class="icon-move">
@@ -21,16 +21,26 @@
           :id="field.id"
           v-bind:class="{ 'focused-element': field.isFocused === true }"
           tabindex="-1"
-          class="form-group form-element-container cancel-drag w-100"
+          class="form-group form-element-container w-100"
         >
           <div v-bind:class="{ hide: field.isFocused !== true }" class="action-circles">
             <div
               v-on:click="$emit('deleteElement', field, parentRef)"
               class="action-circle delete-circle"
             >
-            <i class="bi bi-trash-fill"></i>
+              <i class="bi bi-trash-fill"></i>
               <span class="delete-text">Remover</span>
             </div>
+            <button
+              v-if="field.type == 'table'"
+              type="button"
+              class="action-circle edit-table-circle"
+              data-bs-toggle="modal"
+              data-bs-target="#tableEditor"
+            >
+              <i class="bi bi-trash-fill"></i>
+              <span class="delete-text">Editar tabela</span>
+            </button>
           </div>
           <HeaderElement
             v-if="field.type === 'header'"
@@ -51,8 +61,7 @@
           >
           </AddressElement>
 
-          <checkboxElement v-if="field.type === 'checkbox'" v-bind:field="field">
-          </checkboxElement>
+          <checkboxElement v-if="field.type === 'checkbox'" v-bind:field="field"> </checkboxElement>
 
           <RadioButtonElement v-if="field.type === 'radiobutton'" v-bind:field="field">
           </RadioButtonElement>

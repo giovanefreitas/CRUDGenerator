@@ -15,7 +15,7 @@ a {
   padding: 10px;
   padding-top: 8px;
   position: absolute;
-  right: -80px;
+  right: -40px;
   text-align: center;
   width: 36px;
 }
@@ -132,11 +132,15 @@ a {
 
 .delete-circle {
   background-color: #f44336;
-  top: 40px;
+  top: 0px;
   transition-property: all;
   transition-duration: 100ms;
   -webkit-transition-duration: 100ms;
   transition-timing-function: ease;
+}
+
+.edit-table-circle {
+  top: 40px;
 }
 
 .delete-circle:hover {
@@ -145,7 +149,6 @@ a {
 
 .delete-text {
   font-size: 12px;
-  padding: 5px;
   padding-left: 10px;
 }
 
@@ -585,11 +588,14 @@ input:checked + .slider:before {
 
 .icon-move {
   display: none;
-  float: left;
-  top: 0px;
-  left: 5px;
-  position: relative;
+  position: absolute;
+  margin-top: 0px;
+  margin-left: -30px;
   font-size: 1.5rem;
+}
+
+.field-element{
+  padding-left: 50px;
 }
 
 .field-element:hover .icon-move {
