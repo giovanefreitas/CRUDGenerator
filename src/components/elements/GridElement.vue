@@ -28,8 +28,8 @@
               v-on:click="$emit('deleteElement', field, parentRef)"
               class="action-circle delete-circle"
             >
-              <span class="glyphicon glyphicon-trash delete-trash"></span>
-              <span class="delete-text">Remove</span>
+            <i class="bi bi-trash-fill"></i>
+              <span class="delete-text">Remover</span>
             </div>
           </div>
           <HeaderElement
@@ -40,6 +40,9 @@
           </HeaderElement>
 
           <InputElement v-if="field.type === 'input'" v-bind:field="field"> </InputElement>
+
+          <RelationshipElement v-if="field.type === 'relationship'" v-bind:field="field">
+          </RelationshipElement>
 
           <AddressElement
             v-if="field.type === 'address'"
@@ -90,6 +93,7 @@ export default {
 import HeaderElement from './HeaderElement.vue'
 import AddressElement from './AddressElement.vue'
 import InputElement from './InputElement.vue'
+import RelationshipElement from './RelationshipElement.vue'
 import CheckboxesElement from './CheckboxesElement.vue'
 import RadioButtonsElement from './RadioButtonsElement.vue'
 import SelectElement from './SelectElement.vue'

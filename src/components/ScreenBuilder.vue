@@ -52,6 +52,29 @@
             <label>Coluna</label>
             <input type="text" class="form-control" v-model="selectedField.column" />
           </div>
+          <div v-if="selectedField.type == 'relationship'" class="form-group">
+            <label>Tipo de entrada</label>
+            <select class="form-select" v-model="selectedField.widgetType">
+              <option value="select">Lista suspensa</option>
+              <option value="autocomplete">Caixa de entrada com busca dinâmica</option>
+            </select>
+          </div>
+          <div v-if="selectedField.type == 'relationship'" class="form-group">
+            <label>Schema referenciado</label>
+            <input type="text" class="form-control" v-model="selectedField.referencedSchema" />
+          </div>
+          <div v-if="selectedField.type == 'relationship'" class="form-group">
+            <label>Tabela referenciada</label>
+            <input type="text" class="form-control" v-model="selectedField.referencedTable" />
+          </div>
+          <div v-if="selectedField.type == 'relationship'" class="form-group">
+            <label>Coluna referenciada</label>
+            <input type="text" class="form-control" v-model="selectedField.referencedColumn" />
+          </div>
+          <div v-if="selectedField.type == 'relationship'" class="form-group">
+            <label>Coluna de descrição e busca</label>
+            <input type="text" class="form-control" v-model="selectedField.referencedDescribeColumn" />
+          </div>
         </div>
         <div v-if="selectedField.type === 'table'" class="element-property">
           <div class="form-group">
@@ -198,7 +221,10 @@
           </div>
         </div>
 
-        <div v-if="selectedField.type != 'grid' && selectedField.type != 'table'" class="element-property">
+        <div
+          v-if="selectedField.type != 'grid' && selectedField.type != 'table'"
+          class="element-property"
+        >
           <div class="row" v-for="subfield in selectedField.subfields" :key="subfield.id">
             <div class="col-sm-6">{{ subfield.label_display }}</div>
             <div class="col-sm-6 col-padding">
@@ -273,8 +299,9 @@ const props = defineProps({ baseForm: { type: Object } })
 
 /*
 ELEMENTO:
-  type: tipo padrão
-  name: varíaveis e colunas
+  type: tipo de dado do atributo
+  widgetType: Tipo de input usado na interface do usuário
+  name: variáveis e colunas
   label: exibição na tela do sistema gerado
   label_display: exibição na tela do editor de formulários
   placeholder: dica de tela exibida no sistema gerado
@@ -288,6 +315,10 @@ ELEMENTO:
   subheader: descrição adicional do campo, exibida no sistema gerado
   column: Nome da coluna onde será salvo
   table: Nome da databela onde a composição ou agregação será persistida
+  referencedSchema: Nome do schema ao qual pertence a tabela referenciada em um autocomplete
+  referencedTable: Nome da tabela referenciada em um autocomplete
+  referencedColumn: Nome das colunas que compõem a foreign key em um autocomplete
+  referencedDescribeColumn: Nome da coluna que será usada como descritor em um autocomplete
 */
 
 const ELEMENTS = {
@@ -413,6 +444,14 @@ const ELEMENTS = {
     label: 'Tabela',
     type: 'table',
     icon: 'bi-table',
+    subfields: []
+  },
+  relationship: {
+    name: 'relationship',
+    label: 'Relacionamento',
+    type: 'relationship',
+    widgetType: 'select',
+    icon: 'bi-link-45deg',
     subfields: []
   }
 }
