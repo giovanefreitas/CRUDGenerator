@@ -209,8 +209,8 @@
         </div>
         <div
           v-if="
-            selectedField.type === 'checkboxes' ||
-            selectedField.type === 'radio_buttons' ||
+            selectedField.type === 'checkbox' ||
+            selectedField.type === 'radiobutton' ||
             selectedField.type === 'select'
           "
           class="element-property"
@@ -405,19 +405,19 @@ const ELEMENTS = {
     icon: 'bi-input-cursor-text',
     subfields: []
   },
-  checkboxes: {
-    name: 'checkboxes',
+  checkbox: {
+    name: 'checkbox',
     label: 'Caixa de marcação',
-    type: 'checkboxes',
+    type: 'checkbox',
     tagname: 'input',
     options: 'Opção 1\nOpção 2\nOpção 3',
     icon: 'bi-ui-checks',
     subfields: []
   },
-  radio_buttons: {
-    name: 'radio_buttons',
+  radiobutton: {
+    name: 'radiobutton',
     label: 'Caixa de seleção',
-    type: 'radio_buttons',
+    type: 'radiobutton',
     tagname: 'input',
     options: 'Opção 1\nOpção 2\nOpção 3',
     icon: 'bi-ui-radios',

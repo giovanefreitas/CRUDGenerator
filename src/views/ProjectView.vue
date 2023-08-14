@@ -52,23 +52,23 @@ onMounted(() => {
 })
 
 const blacklist = ['_id', 'isFocused']
-function sanitizar(obj) {
+function sanitize(obj) {
   Object.keys(obj).forEach(function (key) {
     ;(blacklist.indexOf(key) >= 0 && delete obj[key]) ||
-      (obj[key] && typeof obj[key] === 'object' && sanitizar(obj[key]))
+      (obj[key] && typeof obj[key] === 'object' && sanitize(obj[key]))
   })
   return obj
 }
 
 function saveForm() {
-  var objSanitizado = sanitizar(_.cloneDeep(baseForm.value))
+  var sanitizedObject = sanitize(_.cloneDeep(baseForm.value))
 
   fetch(new Request(`${BASE_URL}/cadastros/${baseForm.value._id}`), {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(objSanitizado)
+    body: JSON.stringify(sanitizedObject)
   })
 }
 </script>

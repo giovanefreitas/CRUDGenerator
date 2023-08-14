@@ -51,11 +51,11 @@
           >
           </AddressElement>
 
-          <CheckboxesElement v-if="field.type === 'checkboxes'" v-bind:field="field">
-          </CheckboxesElement>
+          <checkboxElement v-if="field.type === 'checkbox'" v-bind:field="field">
+          </checkboxElement>
 
-          <RadioButtonsElement v-if="field.type === 'radio_buttons'" v-bind:field="field">
-          </RadioButtonsElement>
+          <RadioButtonElement v-if="field.type === 'radiobutton'" v-bind:field="field">
+          </RadioButtonElement>
 
           <SelectElement v-if="field.type === 'select'" v-bind:field="field"> </SelectElement>
 
@@ -94,8 +94,8 @@ import HeaderElement from './HeaderElement.vue'
 import AddressElement from './AddressElement.vue'
 import InputElement from './InputElement.vue'
 import RelationshipElement from './RelationshipElement.vue'
-import CheckboxesElement from './CheckboxesElement.vue'
-import RadioButtonsElement from './RadioButtonsElement.vue'
+import checkboxElement from './checkboxElement.vue'
+import RadioButtonElement from './RadioButtonElement.vue'
 import SelectElement from './SelectElement.vue'
 import TableElement from './TableElement.vue'
 import { PrimeIcons } from 'primevue/api'

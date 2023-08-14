@@ -186,41 +186,82 @@
                   </div>
                 </div>
                 <h4>Atributos:</h4>
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th scope="col">#</th>
-                      <th scope="col">Nome</th>
-                      <th scope="col">Nome da Coluna</th>
-                      <th scope="col">Rótulo</th>
-                      <th scope="col">Tipo</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(field, index) of screen.subfields" :key="field.id">
-                      <th scope="row">{{ index + 1 }}</th>
-                      <td>
-                        <input type="text" v-model="field.name" />
-                      </td>
-                      <td>
-                        <input type="text" v-model="field.column" />
-                      </td>
-                      <td>
-                        <input type="text" v-model="field.label" />
-                      </td>
-                      <td>
-                        <input type="text" v-model="field.type" />
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                <AttributesTable :fields="screen.subfields" />
               </div>
             </div>
           </div>
         </div>
       </template>
       <template v-slot:page5>
-        <h1>Fim</h1>
+        <div class="accordion" id="accordionRelationships">
+          <div v-for="(screen, index) in selectedTables" class="accordion-item" :key="screen.table">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button"
+                :class="{ collapsed: index > 0 }"
+                type="button"
+                data-bs-toggle="collapse"
+                :data-bs-target="`#relationships${screen.table}`"
+                aria-expanded="true"
+                aria-controls="relationships${screen.table}`"
+              >
+                {{ screen.table }}
+              </button>
+            </h2>
+            <div
+              :id="`relationships${screen.table}`"
+              class="accordion-collapse collapse"
+              :class="{ show: index == 0 }"
+              data-bs-parent="#accordionRelationships"
+            >
+              <div class="accordion-body">
+                <template v-for="(field, index) of screen.subfields" :key="field.id">
+                  <div v-if="field.type == 'table'">
+                    <div class="form-check col-12">
+                      <input
+                        type="checkbox"
+                        class="form-check-input"
+                        id="inputCommentAsLabel"
+                        v-model="field.selected"
+                      /><label for="inputLabel" class="form-check-label h6"
+                        >Incluir detalhe para a tabela {{ field.table }}</label
+                      >
+                    </div>
+
+                    <div class="form-group row">
+                      <label for="inputLabel" class="col-sm-3 col-form-label">Atributo</label>
+                      <div class="col-sm-9">
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="inputLabel"
+                          v-model="field.name"
+                          :disabled="!field.selected"
+                        />
+                      </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="inputLabel" class="col-sm-3 col-form-label">Rótulo</label>
+                      <div class="col-sm-9">
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="inputLabel"
+                          v-model="field.label"
+                          :disabled="!field.selected"
+                        />
+                      </div>
+                    </div>
+                    <h5>Colunas disponíveis:</h5>
+                    <div class="form-group row">
+                      <AttributesTable :fields="field.subfields" :disabled="!field.selected" />
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
       </template>
     </form-wizard>
   </div>
@@ -229,6 +270,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import FormWizard from '../components/internal/FormWizard.vue'
+import AttributesTable from '../components/internal/AttributesTable.vue'
 import _ from 'lodash'
 import { useRouter } from 'vue-router'
 
@@ -251,14 +293,14 @@ const steps = ref([
     slot: 'page3'
   },
   {
-    label: 'Detalhes',
+    label: 'Atributos',
     slot: 'page4',
     options: {
       nextDisabled: true // control whether next is disabled or not
     }
   },
   {
-    label: 'Finalizar',
+    label: 'Relacionamentos 1-N',
     slot: 'page5',
     options: {
       nextDisabled: true // control whether next is disabled or not
@@ -284,8 +326,21 @@ async function nextClicked(currentPage) {
     await importFromDatabase()
   }
 
+  if (currentPage == 2) {
+    for (let screen of selectedTables.value) {
+      for (let field of screen.subfields) {
+        field.selected = true
+        if (field.type == 'table') {
+          for (let subfield of field.subfields) {
+            subfield.selected = true
+          }
+        }
+      }
+    }
+  }
+
   if (currentPage == 4) {
-    salvarProjeto()
+    saveProject()
   }
 
   return true //return false if you want to prevent moving to next page
@@ -319,28 +374,43 @@ async function importFromDatabase() {
 }
 
 const blacklist = ['selected']
-function sanitizar(obj) {
+function sanitize(obj) {
   Object.keys(obj).forEach(function (key) {
     ;(blacklist.indexOf(key) >= 0 && delete obj[key]) ||
-      (obj[key] && typeof obj[key] === 'object' && sanitizar(obj[key]))
+      (obj[key] && typeof obj[key] === 'object' && sanitize(obj[key]))
   })
   return obj
 }
 
-function salvarProjeto() {
-  var objSanitizado = sanitizar(_.cloneDeep(generatedProject.value))
+function saveProject() {
+  let sanitizedObject = sanitize(_.cloneDeep(generatedProject.value))
+  sanitizedObject.screens = selectedTables.value
+  for (let screen of sanitizedObject.screens) {
+    screen.subfields = excludeUnselectedFields(screen.subfields)
+  }
 
   fetch(new Request(`${BASE_URL}/cadastros/`), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(objSanitizado)
+    body: JSON.stringify(sanitizedObject)
   })
     .then((resp) => resp.json())
     .then((data) => {
       console.log(data)
       router.push({ name: 'project', params: { id: data.insertedId } })
     })
+}
+
+function excludeUnselectedFields(fields) {
+  let filtered = fields.filter((item) => item.selected)
+  for (let field of filtered) {
+    if (field.subfields) {
+      field.subfields = excludeUnselectedFields(field.subfields)
+    }
+  }
+
+  return filtered
 }
 </script>
