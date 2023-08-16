@@ -306,7 +306,7 @@
     aria-hidden="true"
   >
     <div class="modal-dialog modal-xl">
-      <div class="modal-content">
+      <div class="modal-content w-100">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="tableEditorLabel">
             Editar tabela {{ selectedField.name }}
@@ -322,8 +322,7 @@
           <AttributesTable :fields="selectedField.subfields" />
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fechar</button>
         </div>
       </div>
     </div>

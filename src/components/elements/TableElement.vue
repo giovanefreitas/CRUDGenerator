@@ -37,13 +37,19 @@ onMounted(() => {
 const columns = ref()
 const products = ref()
 
-watch(props.field, async (newValue, oldValue) => {
-  if (newValue.subfields.length != oldValue.subfields.length) {
+watch(
+  props,
+  async (newValue, oldValue) => {
     console.log('Atualizando tabela')
-    generateData()
     refreshColumns()
+    if (newValue.field.subfields.length != oldValue.field.subfields.length) {
+      generateData()
+    }
+  },
+  {
+    deep: true
   }
-})
+)
 
 const onColReorder = (dragEvent) => {
   console.log(dragEvent)
