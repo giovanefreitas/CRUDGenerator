@@ -96,6 +96,10 @@
         </div>
         <div v-if="selectedField.type === 'table'" class="element-property">
           <div class="form-group">
+            <label>Entidade</label>
+            <input type="text" class="form-control" v-model="selectedField.entity" />
+          </div>
+          <div class="form-group">
             <label>Tabela</label>
             <input type="text" class="form-control" v-model="selectedField.table" />
           </div>
