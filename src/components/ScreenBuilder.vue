@@ -365,6 +365,7 @@ ELEMENTO:
   referencedTable: Nome da tabela referenciada em um autocomplete
   referencedColumn: Nome das colunas que compõem a foreign key em um autocomplete
   referencedDescribeColumn: Nome da coluna que será usada como descritor em um autocomplete
+  referencedEntity: Nome da entidade referenciada em um relacionamento
 */
 
 const ELEMENTS = {
