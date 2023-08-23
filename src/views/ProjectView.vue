@@ -21,16 +21,9 @@ import _ from 'lodash'
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`
 const EMPTY_PROJECT = {
+  id: '',
   name: 'Novo Projeto',
-  entities: [],
-  screens: [
-    {
-      name: 'grid',
-      label: 'Nova tela',
-      type: 'grid',
-      subfields: []
-    }
-  ]
+  description: '',
 }
 
 const route = useRoute()
@@ -39,7 +32,7 @@ const baseForm = ref(_.cloneDeep(EMPTY_PROJECT))
 
 onMounted(() => {
   if (route.params.id != 'new') {
-    fetch(`${BASE_URL}/cadastros/${route.params.id}`)
+    fetch(`${BASE_URL}/projects/${route.params.id}`)
       .then((resp) => resp.json())
       .then((dados) => {
         baseForm.value = dados
@@ -51,7 +44,7 @@ onMounted(() => {
   }
 })
 
-const blacklist = ['_id', 'isFocused']
+const blacklist = ['isFocused']
 function sanitize(obj) {
   Object.keys(obj).forEach(function (key) {
     ;(blacklist.indexOf(key) >= 0 && delete obj[key]) ||
@@ -61,10 +54,11 @@ function sanitize(obj) {
 }
 
 function saveForm() {
-  var sanitizedObject = sanitize(_.cloneDeep(baseForm.value))
+  let sanitizedObject = sanitize(_.cloneDeep(baseForm.value))
+  let method = baseForm.value.id ? 'PUT' : 'POST'
 
-  fetch(new Request(`${BASE_URL}/cadastros/${baseForm.value._id}`), {
-    method: 'PUT',
+  fetch(new Request(`${BASE_URL}/projects/${baseForm.value.id}`), {
+    method: method,
     headers: {
       'Content-Type': 'application/json'
     },
