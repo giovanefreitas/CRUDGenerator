@@ -62,7 +62,7 @@
             <label>Identificador</label>
             <input type="text" class="form-control" v-model="selectedField.name" />
           </div>
-          <div class="form-group">
+          <div v-if="selectedField.type != 'table'" class="form-group">
             <label>Coluna</label>
             <input type="text" class="form-control" v-model="selectedField.column" />
           </div>
@@ -72,6 +72,10 @@
               <option value="select">Lista suspensa</option>
               <option value="autocomplete">Caixa de entrada com busca dinâmica</option>
             </select>
+          </div>
+          <div v-if="selectedField.type == 'relationship'" class="form-group">
+            <label>Entidade referenciada</label>
+            <input type="text" class="form-control" v-model="selectedField.referencedEntity" />
           </div>
           <div v-if="selectedField.type == 'relationship'" class="form-group">
             <label>Schema referenciado</label>
