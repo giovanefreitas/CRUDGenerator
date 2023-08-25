@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import ProjectView from '../views/ProjectView.vue'
+import ScreenView from '../views/ScreenView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,6 +23,11 @@ const router = createRouter({
       path: '/project/:id',
       name: 'project',
       component: ProjectView
+    },
+    {
+      path: '/screen/:id',
+      name: 'screen',
+      component: ScreenView
     },
     {
       path: '/schema-importer',

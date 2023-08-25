@@ -5,26 +5,28 @@
         <img alt="logo" src="/src/assets/logo.svg" height="40" class="mr-2" />
       </template>
       <template #end>
-        <InputText placeholder="Pesquisar" type="text" />
+        <span class="p-input-icon-left">
+          <i class="pi pi-search" />
+          <InputText v-model="filters['global'].value" placeholder="Pesquisar..." />
+        </span>
       </template>
     </Menubar>
-    <Toolbar class="mb-4">
-      <template #start>
-        <Button label="New" icon="pi pi-plus" severity="success" class="mr-2" @click="openNew" />
-        <Button
-          label="Delete"
-          icon="pi pi-trash"
-          severity="danger"
-          @click="confirmDeleteSelected"
-          :disabled="!selectedProducts || !selectedProducts.length"
-        />
+    <DataTable
+      ref="dt"
+      :value="projectList"
+      v-model:selection="selectedProjects"
+      dataKey="id"
+      :paginator="true"
+      :rows="10"
+      :filters="filters"
+      tableStyle="min-width: 50rem"
+    >
+      <template #header>
+        <div class="flex flex-wrap gap-2 align-items-center justify-content-between">
+          <h4 class="m-0">Projetos</h4>
+        </div>
       </template>
-      <template #end>
-        <Button label="Importar" icon="pi pi-upload" severity="help" @click="exportCSV($event)" />
-        <Button label="Exportar" icon="pi pi-download" severity="help" @click="exportCSV($event)" />
-      </template>
-    </Toolbar>
-    <DataTable :value="projectList" tableStyle="min-width: 50rem">
+      <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
       <Column field="name" header="Nome"></Column>
       <Column field="description" header="Descrição"></Column>
       <Column header="Status">
@@ -35,11 +37,18 @@
           />
         </template>
       </Column>
+      <Column header="Status">
+        <template #body="slotProps">
+          <router-link :to="`/project/${slotProps.data.id}`">
+            <Button label="Editar" icon="pi pi-edit" severity="primary" class="mr-2" />
+          </router-link>
+        </template>
+      </Column>
     </DataTable>
     <Dialog
-      v-model:visible="productDialog"
+      v-model:visible="projectDialog"
       :style="{ width: '450px' }"
-      header="Product Details"
+      header="Project Details"
       :modal="true"
       class="p-fluid"
     >
@@ -47,18 +56,18 @@
         <label for="name">Name</label>
         <InputText
           id="name"
-          v-model.trim="product.name"
+          v-model.trim="project.name"
           required="true"
           autofocus
-          :class="{ 'p-invalid': submitted && !product.name }"
+          :class="{ 'p-invalid': submitted && !project.name }"
         />
-        <small class="p-error" v-if="submitted && !product.name">Name is required.</small>
+        <small class="p-error" v-if="submitted && !project.name">Name is required.</small>
       </div>
       <div class="field">
         <label for="description">Description</label>
         <Textarea
           id="description"
-          v-model="product.description"
+          v-model="project.description"
           required="true"
           rows="3"
           cols="20"
@@ -69,7 +78,7 @@
         <label for="inventoryStatus" class="mb-3">Inventory Status</label>
         <Dropdown
           id="inventoryStatus"
-          v-model="product.inventoryStatus"
+          v-model="project.inventoryStatus"
           :options="statuses"
           optionLabel="label"
           placeholder="Select a Status"
@@ -99,7 +108,7 @@
               id="category1"
               name="category"
               value="Accessories"
-              v-model="product.category"
+              v-model="project.category"
             />
             <label for="category1">Accessories</label>
           </div>
@@ -108,7 +117,7 @@
               id="category2"
               name="category"
               value="Clothing"
-              v-model="product.category"
+              v-model="project.category"
             />
             <label for="category2">Clothing</label>
           </div>
@@ -117,7 +126,7 @@
               id="category3"
               name="category"
               value="Electronics"
-              v-model="product.category"
+              v-model="project.category"
             />
             <label for="category3">Electronics</label>
           </div>
@@ -126,7 +135,7 @@
               id="category4"
               name="category"
               value="Fitness"
-              v-model="product.category"
+              v-model="project.category"
             />
             <label for="category4">Fitness</label>
           </div>
@@ -138,7 +147,7 @@
           <label for="price">Price</label>
           <InputNumber
             id="price"
-            v-model="product.price"
+            v-model="project.price"
             mode="currency"
             currency="USD"
             locale="en-US"
@@ -146,47 +155,47 @@
         </div>
         <div class="field col">
           <label for="quantity">Quantity</label>
-          <InputNumber id="quantity" v-model="product.quantity" integeronly />
+          <InputNumber id="quantity" v-model="project.quantity" integeronly />
         </div>
       </div>
       <template #footer>
         <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
-        <Button label="Save" icon="pi pi-check" text @click="saveProduct" />
+        <Button label="Save" icon="pi pi-check" text @click="saveProject" />
       </template>
     </Dialog>
 
     <Dialog
-      v-model:visible="deleteProductDialog"
+      v-model:visible="deleteProjectDialog"
       :style="{ width: '450px' }"
       header="Confirm"
       :modal="true"
     >
       <div class="confirmation-content">
         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-        <span v-if="product"
-          >Are you sure you want to delete <b>{{ product.name }}</b
+        <span v-if="project"
+          >Você tem certeza que deseja excluir o projeto <b>{{ project.name }}</b
           >?</span
         >
       </div>
       <template #footer>
-        <Button label="No" icon="pi pi-times" text @click="deleteProductDialog = false" />
-        <Button label="Yes" icon="pi pi-check" text @click="deleteProduct" />
+        <Button label="No" icon="pi pi-times" text @click="deleteProjectDialog = false" />
+        <Button label="Yes" icon="pi pi-check" text @click="deleteProject" />
       </template>
     </Dialog>
 
     <Dialog
-      v-model:visible="deleteProductsDialog"
+      v-model:visible="deleteProjectsDialog"
       :style="{ width: '450px' }"
       header="Confirm"
       :modal="true"
     >
       <div class="confirmation-content">
         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-        <span v-if="product">Are you sure you want to delete the selected products?</span>
+        <span v-if="project">Você tem certeza que deseja excluir os projetos selecionados?</span>
       </div>
       <template #footer>
-        <Button label="No" icon="pi pi-times" text @click="deleteProductsDialog = false" />
-        <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedProducts" />
+        <Button label="No" icon="pi pi-times" text @click="deleteProjectsDialog = false" />
+        <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedProjects" />
       </template>
     </Dialog>
   </main>
@@ -207,17 +216,21 @@ import InputNumber from 'primevue/inputnumber'
 import Dropdown from 'primevue/dropdown'
 import Textarea from 'primevue/textarea'
 import Dialog from 'primevue/dialog'
+import { FilterMatchMode } from 'primevue/api'
 import _ from 'lodash'
+import { useRouter } from 'vue-router'
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`
 const toast = useToast()
-const productDialog = ref(false)
-const deleteProductDialog = ref(false)
-const deleteProductsDialog = ref(false)
+const dt = ref()
+const projectDialog = ref(false)
+const deleteProjectDialog = ref(false)
+const deleteProjectsDialog = ref(false)
 const projectList = ref([])
-const product = ref({})
-const selectedProducts = ref()
+const project = ref({})
+const selectedProjects = ref()
 const submitted = ref(false)
+const router = useRouter()
 
 const items = ref([
   {
@@ -229,6 +242,22 @@ const items = ref([
     label: 'Atualizar',
     icon: 'pi pi-fw pi-refresh',
     command: () => loadProjects()
+  },
+  {
+    label: 'Excluir',
+    icon: 'pi pi-fw pi-trash',
+    command: () => confirmDeleteSelected()
+    //disabled="!selectedProjects || !selectedProjects.length
+  },
+  {
+    label: 'Importar',
+    icon: 'pi pi-fw pi-upload',
+    command: () => exportCSV()
+  },
+  {
+    label: 'Exportar',
+    icon: 'pi pi-fw pi-download',
+    command: () => exportCSV()
   },
   {
     label: 'Sair',
@@ -243,6 +272,10 @@ const statuses = ref([
   { label: 'OUTOFSTOCK', value: 'outofstock' }
 ])
 
+const filters = ref({
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS }
+})
+
 onMounted(() => {
   loadProjects()
 })
@@ -255,14 +288,6 @@ function loadProjects() {
     })
 }
 
-function createNewProject() {
-  alert('novo projeto')
-}
-
-function signout() {
-  alert('Saiu.')
-}
-
 const getSeverity = (project) => {
   if (project.published) {
     return 'success'
@@ -271,68 +296,79 @@ const getSeverity = (project) => {
   }
 }
 
-const openNew = () => {
-  product.value = {}
+const createNewProject = () => {
+  project.value = {}
   submitted.value = false
-  productDialog.value = true
+  projectDialog.value = true
 }
 const hideDialog = () => {
-  productDialog.value = false
+  projectDialog.value = false
   submitted.value = false
 }
 
-const saveProduct = () => {
+const saveProject = () => {
   submitted.value = true
 
-  const sanitizedObject = sanitize(_.cloneDeep(product.value))
-  const method = product.value.id ? 'PUT' : 'POST'
+  const sanitizedObject = sanitize(_.cloneDeep(project.value))
+  const method = project.value.id ? 'PUT' : 'POST'
 
-  fetch(new Request(`${BASE_URL}/projects/${product.value.id ? product.value.id : ''}`), {
+  fetch(new Request(`${BASE_URL}/projects/${project.value.id ? project.value.id : ''}`), {
     method: method,
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(sanitizedObject)
   })
-    .then(() => {
-      loadProjects()
-      toast.add({
-        severity: 'success',
-        summary: 'Successful',
-        detail: 'Product Updated',
-        life: 3000
-      })
+    .then((response) => {
+      console.log(response)
+      if (response.status == 200 || response.status == 201) {
+        loadProjects()
+        toast.add({
+          severity: 'success',
+          summary: 'Successful',
+          detail: 'Project Updated',
+          life: 3000
+        })
+        return response.json()
+      } else {
+        response.text().then((text) => console.error(text))
+        throw new Error('Não foi possível gravar o projeto, por favor tente mais tarde.')
+      }
+    })
+    .then((data) => {
+      console.log(data)
+      router.push(`/project/${data.id}`)
     })
     .catch((error) => {
       toast.add({
-        severity: 'danger',
+        severity: 'error',
         summary: 'Erro',
         detail: error,
         life: 30000
       })
     })
 
-  productDialog.value = false
-  product.value = {}
+  projectDialog.value = false
+  project.value = {}
 }
-const editProduct = (prod) => {
-  product.value = { ...prod }
-  productDialog.value = true
+const editProject = (prod) => {
+  project.value = { ...prod }
+  projectDialog.value = true
 }
-const confirmDeleteProduct = (prod) => {
-  product.value = prod
-  deleteProductDialog.value = true
+const confirmDeleteProject = (prod) => {
+  project.value = prod
+  deleteProjectDialog.value = true
 }
-const deleteProduct = () => {
-  products.value = products.value.filter((val) => val.id !== product.value.id)
-  deleteProductDialog.value = false
-  product.value = {}
-  toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 })
+const deleteProject = () => {
+  projects.value = projects.value.filter((val) => val.id !== project.value.id)
+  deleteProjectDialog.value = false
+  project.value = {}
+  toast.add({ severity: 'success', summary: 'Successful', detail: 'Project Deleted', life: 3000 })
 }
 const findIndexById = (id) => {
   let index = -1
-  for (let i = 0; i < products.value.length; i++) {
-    if (products.value[i].id === id) {
+  for (let i = 0; i < projects.value.length; i++) {
+    if (projects.value[i].id === id) {
       index = i
       break
     }
@@ -354,12 +390,12 @@ const exportCSV = () => {
   dt.value.exportCSV()
 }
 const confirmDeleteSelected = () => {
-  deleteProductsDialog.value = true
+  deleteProjectsDialog.value = true
 }
-const deleteSelectedProducts = () => {
-  products.value = products.value.filter((val) => !selectedProducts.value.includes(val))
-  deleteProductsDialog.value = false
-  selectedProducts.value = null
-  toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 })
+const deleteSelectedProjects = () => {
+  projects.value = projects.value.filter((val) => !selectedProjects.value.includes(val))
+  deleteProjectsDialog.value = false
+  selectedProjects.value = null
+  toast.add({ severity: 'success', summary: 'Successful', detail: 'Projects Deleted', life: 3000 })
 }
 </script>
