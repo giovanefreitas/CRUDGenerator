@@ -5,10 +5,7 @@
         <img alt="logo" src="/src/assets/logo.svg" height="40" class="mr-2" />
       </template>
       <template #end>
-        <span class="p-input-icon-left">
-          <i class="pi pi-search" />
-          <InputText v-model="filters['global'].value" placeholder="Pesquisar..." />
-        </span>
+        <Button @click="router.go(-1)">Fechar</Button>
       </template>
     </Menubar>
     <DataTable
@@ -246,20 +243,10 @@ const items = ref([
     //disabled="!selectedScreens || !selectedScreens.length
   },
   {
-    label: 'Importar',
-    icon: 'pi pi-fw pi-upload',
-    command: () => exportCSV()
-  },
-  {
     label: 'Exportar',
     icon: 'pi pi-fw pi-download',
     command: () => exportCSV()
   },
-  {
-    label: 'Sair',
-    icon: 'pi pi-fw pi-power-off',
-    command: () => signout()
-  }
 ])
 
 const statuses = ref([

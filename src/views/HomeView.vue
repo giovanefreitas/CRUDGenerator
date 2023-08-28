@@ -255,11 +255,6 @@ const items = ref([
     command: () => exportCSV()
   },
   {
-    label: 'Exportar',
-    icon: 'pi pi-fw pi-download',
-    command: () => exportCSV()
-  },
-  {
     label: 'Sair',
     icon: 'pi pi-fw pi-power-off',
     command: () => signout()

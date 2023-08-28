@@ -19,7 +19,9 @@ import { onMounted, ref } from 'vue'
 import Menubar from 'primevue/menubar'
 import Button from 'primevue/button'
 import _ from 'lodash'
+import { useToast } from 'primevue/usetoast'
 
+const toast = useToast()
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`
 
 const items = ref([
@@ -31,7 +33,7 @@ const items = ref([
 ])
 
 const route = useRoute()
-const router = useRouter();
+const router = useRouter()
 const screen = ref({})
 
 onMounted(() => {
@@ -42,7 +44,7 @@ onMounted(() => {
     })
 })
 
-const blacklist = ['isFocused']
+const blacklist = ['isFocused', 'subheader_update', 'order_rank']
 function sanitize(obj) {
   Object.keys(obj).forEach(function (key) {
     ;(blacklist.indexOf(key) >= 0 && delete obj[key]) ||
@@ -62,5 +64,28 @@ function saveScreen() {
     },
     body: JSON.stringify(sanitizedObject)
   })
+    .then((response) => {
+      console.log(response)
+      if (response.status == 200) {
+        toast.add({
+          severity: 'success',
+          summary: 'Successful',
+          detail: 'Screen Updated',
+          life: 3000
+        })
+        return response.json()
+      } else {
+        response.text().then((text) => console.error(text))
+        throw new Error('Não foi possível gravar a tela, por favor tente mais tarde.')
+      }
+    })
+    .catch((error) => {
+      toast.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: error,
+        life: 30000
+      })
+    })
 }
 </script>
