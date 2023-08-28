@@ -1,47 +1,45 @@
 <template>
   <main>
-    <AppHeader>
-      <button @click="saveForm">Salvar</button>
-      <select v-model="selectedScreen">
-        <option v-for="(screen, index) of baseForm.screens" :value="screen" :key="index">
-          {{ screen.label }}
-        </option>
-      </select>
-    </AppHeader>
-    <ScreenBuilder :base-form="selectedScreen" />
+    <Menubar :model="items">
+      <template #start>
+        <img alt="logo" src="/src/assets/logo.svg" height="40" class="mr-2" />
+      </template>
+      <template #end>
+        <Button @click="router.go(-1)">Fechar</Button>
+      </template>
+    </Menubar>
+    <ScreenBuilder :base-form="screen" />
   </main>
 </template>
 
 <script setup>
-import AppHeader from '../components/AppHeader.vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import ScreenBuilder from '../components/ScreenBuilder.vue'
 import { onMounted, ref } from 'vue'
+import Menubar from 'primevue/menubar'
+import Button from 'primevue/button'
 import _ from 'lodash'
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`
-const EMPTY_PROJECT = {
-  id: '',
-  name: 'Novo Projeto',
-  description: '',
-}
+
+const items = ref([
+  {
+    label: 'Salvar',
+    icon: 'pi pi-fw pi-plus',
+    command: () => saveScreen()
+  }
+])
 
 const route = useRoute()
-const selectedScreen = ref({})
-const baseForm = ref(_.cloneDeep(EMPTY_PROJECT))
+const router = useRouter();
+const screen = ref({})
 
 onMounted(() => {
-  if (route.params.id != 'new') {
-    fetch(`${BASE_URL}/projects/${route.params.id}`)
-      .then((resp) => resp.json())
-      .then((dados) => {
-        baseForm.value = dados
-        selectedScreen.value = baseForm.value.screens[0]
-      })
-  } else {
-    baseForm.value = EMPTY_PROJECT
-    selectedScreen.value = baseForm.value.screens[0]
-  }
+  fetch(`${BASE_URL}/screens/${route.params.id}`)
+    .then((resp) => resp.json())
+    .then((dados) => {
+      screen.value = dados
+    })
 })
 
 const blacklist = ['isFocused']
@@ -53,11 +51,11 @@ function sanitize(obj) {
   return obj
 }
 
-function saveForm() {
-  let sanitizedObject = sanitize(_.cloneDeep(baseForm.value))
-  let method = baseForm.value.id ? 'PUT' : 'POST'
+function saveScreen() {
+  let sanitizedObject = sanitize(_.cloneDeep(screen.value))
+  let method = screen.value.id ? 'PUT' : 'POST'
 
-  fetch(new Request(`${BASE_URL}/projects/${baseForm.value.id}`), {
+  fetch(new Request(`${BASE_URL}/screens/${screen.value.id}`), {
     method: method,
     headers: {
       'Content-Type': 'application/json'

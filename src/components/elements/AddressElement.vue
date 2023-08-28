@@ -1,8 +1,8 @@
 <template>
   <div>
     <grid-element
-      :fields="activeSubFields"
-      :allowEdit="false"
+      :fields="activeFields"
+      :allow-edit="false"
       v-on:elementFocus="$emit('elementFocus', 
       field)"
     >
@@ -16,7 +16,7 @@ import GridElement from './GridElement.vue'
 
 const props = defineProps({ field: { type: Object } })
 
-const activeSubFields = computed(() => {
-  return props.field.subfields.filter((subfield) => subfield.active)
+const activeFields = computed(() => {
+  return props.field.fields.filter((subfield) => subfield.active)
 })
 </script>

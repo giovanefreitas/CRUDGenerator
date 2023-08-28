@@ -14,7 +14,7 @@
         :class="`col-sm-12 col-md-6 col-xl-${field.cols} field-element`"
         v-on:click.stop="$emit('elementFocus', field)"
       >
-        <div class="icon-move">
+        <div v-if="allowEdit" class="icon-move">
           <i class="pi pi-arrows-alt"></i>
         </div>
         <div
@@ -70,12 +70,12 @@
 
           <GridElement
             v-if="field.type === 'grid'"
-            v-bind:fields="field.subfields"
+            v-bind:fields="field.fields"
             v-bind:columns="field.columns"
-            v-bind:parentRef="`${parentRef}[${index}].subfields`"
+            v-bind:parentRef="`${parentRef}[${index}].fields`"
             v-on:elementFocus="(subfield) => $emit('elementFocus', subfield)"
             v-on:deleteElement="
-              (subfield) => $emit('deleteElement', subfield, `${parentRef}[${index}].subfields`)
+              (subfield) => $emit('deleteElement', subfield, `${parentRef}[${index}].fields`)
             "
           >
           </GridElement>

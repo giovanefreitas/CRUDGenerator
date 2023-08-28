@@ -70,7 +70,7 @@
 </template>
 <script setup>
 const props = defineProps({
-  fields: { type: Object, required: true },
+  fields: { type: Object, required: false },
   disabled: { type: Boolean, default: false }
 })
 

@@ -42,7 +42,7 @@ watch(
   async (newValue, oldValue) => {
     console.log('Atualizando tabela')
     refreshColumns()
-    if (newValue.field.subfields.length != oldValue.field.subfields.length) {
+    if (newValue.field.fields.length != oldValue.field.fields.length) {
       generateData()
     }
   },
@@ -53,12 +53,12 @@ watch(
 
 const onColReorder = (dragEvent) => {
   console.log(dragEvent)
-  props.field.subfields = moveArrayItem(
-    props.field.subfields,
+  props.field.fields = moveArrayItem(
+    props.field.fields,
     dragEvent.dragIndex,
     dragEvent.dropIndex
   )
-  console.log(String(props.field.subfields.map((item) => item.name)))
+  console.log(String(props.field.fields.map((item) => item.name)))
 }
 
 function generateData() {
@@ -66,7 +66,7 @@ function generateData() {
     { length: 5 },
     () => {
       const row = {}
-      for (let column of props.field.subfields) {
+      for (let column of props.field.fields) {
         row[column.name] = faker.vehicle.model()
       }
 
@@ -83,7 +83,7 @@ function generateData() {
 }
 
 function refreshColumns() {
-  columns.value = props.field.subfields.map((item) => ({ field: item.name, header: item.label }))
+  columns.value = props.field.fields.map((item) => ({ field: item.name, header: item.label }))
   console.log(columns.value)
 }
 

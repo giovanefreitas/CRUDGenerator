@@ -19,10 +19,10 @@
 
       <div class="editor-area" @click.stop="limparSelecao">
         <grid-element
-          :fields="baseForm.subfields"
+          :fields="baseForm.fields"
           v-on:elementFocus="elementFocus"
           v-on:deleteElement="deleteElement"
-          parentRef="subfields"
+          parentRef="fields"
           class="card shadow pt-4 pb-4"
         >
         </grid-element>
@@ -243,14 +243,14 @@
           v-if="selectedField.type != 'grid' && selectedField.type != 'table'"
           class="element-property"
         >
-          <div class="row" v-for="subfield in selectedField.subfields" :key="subfield.id">
+          <div class="row" v-for="subfield in selectedField.fields" :key="subfield.id">
             <div class="col-sm-6">{{ subfield.label_display }}</div>
             <div class="col-sm-6 col-padding">
               <input type="text" class="form-control" v-model="subfield.label" />
             </div>
           </div>
           <div
-            v-for="subfield in selectedField.subfields"
+            v-for="subfield in selectedField.fields"
             class="element-property"
             :key="subfield.id"
           >
@@ -327,7 +327,7 @@
           ></button>
         </div>
         <div class="modal-body">
-          <AttributesTable :fields="selectedField.subfields" />
+          <AttributesTable :fields="selectedField.fields" />
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fechar</button>
@@ -357,7 +357,7 @@ ELEMENTO:
   placeholder: dica de tela exibida no sistema gerado
   tagname: tag html a ser usada
   textalign: css de alinhamento
-  subfields: sub componentes
+  fields: sub componentes
   active: usado para indicar se um atributo padrão de um elemento composto deve ser usado ou não
   options: lista de valores padrões para radio, checkbox e select
   isFocused: usado apenas no editor de formulários
@@ -380,14 +380,16 @@ const ELEMENTS = {
     tagname: 'h1',
     textalign: 'text-left',
     icon: 'bi-type',
-    subfields: []
+    cols: 12,
+    fields: []
   },
   address: {
     name: 'address',
     label: 'Endereço',
     type: 'address',
     icon: 'bi-geo-alt',
-    subfields: [
+    cols: 12,
+    fields: [
       {
         name: 'header',
         label: 'Endereço',
@@ -395,7 +397,8 @@ const ELEMENTS = {
         type: 'header',
         tagname: 'h1',
         textalign: 'text-left',
-        subfields: [],
+        cols: 12,
+        fields: [],
         active: true
       },
       {
@@ -404,6 +407,7 @@ const ELEMENTS = {
         label_display: 'CEP',
         type: 'input',
         placeholder: 'CEP',
+        cols: 4,
         active: true
       },
       {
@@ -412,6 +416,7 @@ const ELEMENTS = {
         label_display: 'Logradouro',
         type: 'input',
         placeholder: 'Logradouro',
+        cols: 8,
         active: true
       },
       {
@@ -420,6 +425,7 @@ const ELEMENTS = {
         label_display: 'Bairro',
         type: 'input',
         placeholder: 'Bairro',
+        cols: 5,
         active: true
       },
       {
@@ -428,6 +434,7 @@ const ELEMENTS = {
         label_display: 'Município',
         type: 'input',
         placeholder: 'municipio',
+        cols: 5,
         active: true
       },
       {
@@ -436,6 +443,7 @@ const ELEMENTS = {
         label_display: 'UF',
         type: 'input',
         placeholder: 'uf',
+        cols: 2,
         active: true
       },
       {
@@ -444,6 +452,7 @@ const ELEMENTS = {
         label_display: 'País',
         type: 'input',
         placeholder: 'pais',
+        cols: 6,
         active: false
       }
     ]
@@ -454,7 +463,8 @@ const ELEMENTS = {
     type: 'input',
     tagname: 'input',
     icon: 'bi-input-cursor-text',
-    subfields: []
+    cols: 12,
+    fields: []
   },
   checkbox: {
     name: 'checkbox',
@@ -463,7 +473,8 @@ const ELEMENTS = {
     tagname: 'input',
     options: 'Opção 1\nOpção 2\nOpção 3',
     icon: 'bi-ui-checks',
-    subfields: []
+    cols: 12,
+    fields: []
   },
   radiobutton: {
     name: 'radiobutton',
@@ -472,7 +483,8 @@ const ELEMENTS = {
     tagname: 'input',
     options: 'Opção 1\nOpção 2\nOpção 3',
     icon: 'bi-ui-radios',
-    subfields: []
+    cols: 12,
+    fields: []
   },
   select: {
     name: 'select',
@@ -481,21 +493,24 @@ const ELEMENTS = {
     tagname: 'select',
     options: 'Opção 1\nOpção 2\nOpção 3',
     icon: 'bi-menu-button-fill',
-    subfields: []
+    cols: 12,
+    fields: []
   },
   grid: {
     name: 'grid',
     label: 'Grid',
     type: 'grid',
     icon: 'bi-layout-three-columns',
-    subfields: []
+    cols: 12,
+    fields: []
   },
   table: {
     name: 'table',
     label: 'Tabela',
     type: 'table',
     icon: 'bi-table',
-    subfields: []
+    cols: 12,
+    fields: []
   },
   relationship: {
     name: 'relationship',
@@ -503,7 +518,8 @@ const ELEMENTS = {
     type: 'relationship',
     widgetType: 'select',
     icon: 'bi-link-45deg',
-    subfields: []
+    cols: 12,
+    fields: []
   }
 }
 
@@ -616,12 +632,12 @@ function limparSelecao() {
 }
 
 function addNewSubField(field, options) {
-  if (!field.subfields) {
-    field.subfields = []
+  if (!field.fields) {
+    field.fields = []
   }
 
   const newSubfield = _.cloneDeep(ELEMENTS.input)
   Object.assign(newSubfield, options)
-  field.subfields.push(newSubfield)
+  field.fields.push(newSubfield)
 }
 </script>

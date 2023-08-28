@@ -186,7 +186,7 @@
                   </div>
                 </div>
                 <h4>Atributos:</h4>
-                <AttributesTable :fields="screen.subfields" />
+                <AttributesTable :fields="screen.fields" />
               </div>
             </div>
           </div>
@@ -215,7 +215,7 @@
               data-bs-parent="#accordionRelationships"
             >
               <div class="accordion-body">
-                <template v-for="(field, index) of screen.subfields" :key="field.id">
+                <template v-for="(field, index) of screen.fields" :key="field.id">
                   <div v-if="field.type == 'table'">
                     <div class="form-check col-12">
                       <input
@@ -254,7 +254,7 @@
                     </div>
                     <h5>Colunas disponíveis:</h5>
                     <div class="form-group row">
-                      <AttributesTable :fields="field.subfields" :disabled="!field.selected" />
+                      <AttributesTable :fields="field.fields" :disabled="!field.selected" />
                     </div>
                   </div>
                 </template>
@@ -328,10 +328,10 @@ async function nextClicked(currentPage) {
 
   if (currentPage == 2) {
     for (let screen of selectedTables.value) {
-      for (let field of screen.subfields) {
+      for (let field of screen.fields) {
         field.selected = true
         if (field.type == 'table') {
-          for (let subfield of field.subfields) {
+          for (let subfield of field.fields) {
             subfield.selected = true
           }
         }
@@ -386,7 +386,7 @@ function saveProject() {
   let sanitizedObject = sanitize(_.cloneDeep(generatedProject.value))
   sanitizedObject.screens = selectedTables.value
   for (let screen of sanitizedObject.screens) {
-    screen.subfields = excludeUnselectedFields(screen.subfields)
+    screen.fields = excludeUnselectedFields(screen.fields)
   }
 
   fetch(new Request(`${BASE_URL}/cadastros/`), {
@@ -406,8 +406,8 @@ function saveProject() {
 function excludeUnselectedFields(fields) {
   let filtered = fields.filter((item) => item.selected)
   for (let field of filtered) {
-    if (field.subfields) {
-      field.subfields = excludeUnselectedFields(field.subfields)
+    if (field.fields) {
+      field.fields = excludeUnselectedFields(field.fields)
     }
   }
 
