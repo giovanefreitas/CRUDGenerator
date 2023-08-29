@@ -5,16 +5,13 @@
         <img alt="logo" src="/src/assets/logo.svg" height="40" class="mr-2" />
       </template>
       <template #end>
-        <span class="p-input-icon-left">
-          <i class="pi pi-search" />
-          <InputText v-model="filters['global'].value" placeholder="Pesquisar..." />
-        </span>
+        <Button @click="router.go(-1)">Fechar</Button>
       </template>
     </Menubar>
     <DataTable
       ref="dt"
-      :value="projectList"
-      v-model:selection="selectedProjects"
+      :value="entity.properties"
+      v-model:selection="selectedAttributes"
       dataKey="id"
       :paginator="true"
       :rows="10"
@@ -23,7 +20,7 @@
     >
       <template #header>
         <div class="flex flex-wrap gap-2 align-items-center justify-content-between">
-          <h4 class="m-0">Projetos</h4>
+          <h4 class="m-0">Telas</h4>
         </div>
       </template>
       <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
@@ -39,16 +36,21 @@
       </Column>
       <Column header="Status">
         <template #body="slotProps">
-          <router-link :to="`/project/${slotProps.data.id}`">
-            <Button label="Editar" icon="pi pi-edit" severity="primary" class="mr-2" />
-          </router-link>
+          <Button
+            label="Editar"
+            icon="pi pi-edit"
+            severity="primary"
+            class="mr-2"
+            @click="editAttribute(slotProps.data)"
+          />
         </template>
       </Column>
     </DataTable>
+
     <Dialog
-      v-model:visible="projectDialog"
+      v-model:visible="attributeDialog"
       :style="{ width: '450px' }"
-      header="Project Details"
+      header="Attribute Details"
       :modal="true"
       class="p-fluid"
     >
@@ -56,19 +58,18 @@
         <label for="name">Name</label>
         <InputText
           id="name"
-          v-model.trim="project.name"
+          v-model.trim="attribute.name"
           required="true"
           autofocus
           autocomplete="off"
-          :class="{ 'p-invalid': submitted && !project.name }"
         />
-        <small class="p-error" v-if="submitted && !project.name">Name is required.</small>
+        <small class="p-error" v-if="!attribute.name">Name is required.</small>
       </div>
       <div class="field">
         <label for="description">Description</label>
         <Textarea
           id="description"
-          v-model="project.description"
+          v-model="attribute.description"
           required="true"
           rows="3"
           cols="20"
@@ -79,7 +80,7 @@
         <label for="inventoryStatus" class="mb-3">Inventory Status</label>
         <Dropdown
           id="inventoryStatus"
-          v-model="project.inventoryStatus"
+          v-model="attribute.inventoryStatus"
           :options="statuses"
           optionLabel="label"
           placeholder="Select a Status"
@@ -109,7 +110,7 @@
               id="category1"
               name="category"
               value="Accessories"
-              v-model="project.category"
+              v-model="attribute.category"
             />
             <label for="category1">Accessories</label>
           </div>
@@ -118,7 +119,7 @@
               id="category2"
               name="category"
               value="Clothing"
-              v-model="project.category"
+              v-model="attribute.category"
             />
             <label for="category2">Clothing</label>
           </div>
@@ -127,7 +128,7 @@
               id="category3"
               name="category"
               value="Electronics"
-              v-model="project.category"
+              v-model="attribute.category"
             />
             <label for="category3">Electronics</label>
           </div>
@@ -136,7 +137,7 @@
               id="category4"
               name="category"
               value="Fitness"
-              v-model="project.category"
+              v-model="attribute.category"
             />
             <label for="category4">Fitness</label>
           </div>
@@ -148,7 +149,7 @@
           <label for="price">Price</label>
           <InputNumber
             id="price"
-            v-model="project.price"
+            v-model="attribute.price"
             mode="currency"
             currency="USD"
             locale="en-US"
@@ -156,47 +157,47 @@
         </div>
         <div class="field col">
           <label for="quantity">Quantity</label>
-          <InputNumber id="quantity" v-model="project.quantity" integeronly />
+          <InputNumber id="quantity" v-model="attribute.quantity" integeronly />
         </div>
       </div>
       <template #footer>
-        <Button label="Cancelar" icon="pi pi-times" text @click="hideDialog" />
-        <Button label="Adicionar" icon="pi pi-check" text @click="saveProject" />
+        <Button label="Cancelar" icon="pi pi-times" text @click="hideAttributeDialog" />
+        <Button label="Adicionar" icon="pi pi-check" text @click="addAttribute" />
       </template>
     </Dialog>
 
     <Dialog
-      v-model:visible="deleteProjectDialog"
+      v-model:visible="deleteAttributeDialog"
       :style="{ width: '450px' }"
       header="Confirm"
       :modal="true"
     >
       <div class="confirmation-content">
         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-        <span v-if="project"
-          >Você tem certeza que deseja excluir o projeto <b>{{ project.name }}</b
+        <span v-if="attribute"
+          >Você tem certeza que deseja excluir o tela <b>{{ attribute.name }}</b
           >?</span
         >
       </div>
       <template #footer>
-        <Button label="No" icon="pi pi-times" text @click="deleteProjectDialog = false" />
-        <Button label="Yes" icon="pi pi-check" text @click="deleteProject" />
+        <Button label="No" icon="pi pi-times" text @click="deleteAttributeDialog = false" />
+        <Button label="Yes" icon="pi pi-check" text @click="deleteAttribute" />
       </template>
     </Dialog>
 
     <Dialog
-      v-model:visible="deleteProjectsDialog"
+      v-model:visible="deleteAttributesDialog"
       :style="{ width: '450px' }"
       header="Confirm"
       :modal="true"
     >
       <div class="confirmation-content">
         <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-        <span v-if="project">Você tem certeza que deseja excluir os projetos selecionados?</span>
+        <span v-if="attribute">Você tem certeza que deseja excluir os telas selecionados?</span>
       </div>
       <template #footer>
-        <Button label="No" icon="pi pi-times" text @click="deleteProjectsDialog = false" />
-        <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedProjects" />
+        <Button label="No" icon="pi pi-times" text @click="deleteAttributesDialog = false" />
+        <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedAttributes" />
       </template>
     </Dialog>
   </main>
@@ -219,46 +220,41 @@ import Textarea from 'primevue/textarea'
 import Dialog from 'primevue/dialog'
 import { FilterMatchMode } from 'primevue/api'
 import _ from 'lodash'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`
 const toast = useToast()
 const dt = ref()
-const projectDialog = ref(false)
-const deleteProjectDialog = ref(false)
-const deleteProjectsDialog = ref(false)
-const projectList = ref([])
-const project = ref({})
-const selectedProjects = ref()
-const submitted = ref(false)
+const attributeDialog = ref(false)
+const deleteAttributeDialog = ref(false)
+const deleteAttributesDialog = ref(false)
+const entity = ref([])
+const attribute = ref({})
+const selectedAttributes = ref()
 const router = useRouter()
+const route = useRoute()
 
 const items = ref([
   {
-    label: 'Novo projeto',
+    label: 'Novo atributo',
     icon: 'pi pi-fw pi-plus',
-    command: () => createNewProject()
+    command: () => createNewAttribute()
+  },
+  {
+    label: 'Salvar',
+    icon: 'pi pi-fw pi-refresh',
+    command: () => saveEntity()
   },
   {
     label: 'Atualizar',
     icon: 'pi pi-fw pi-refresh',
-    command: () => loadProjects()
+    command: () => loadAttributes()
   },
   {
     label: 'Excluir',
     icon: 'pi pi-fw pi-trash',
     command: () => confirmDeleteSelected()
-    //disabled="!selectedProjects || !selectedProjects.length
-  },
-  {
-    label: 'Importar',
-    icon: 'pi pi-fw pi-upload',
-    command: () => exportCSV()
-  },
-  {
-    label: 'Sair',
-    icon: 'pi pi-fw pi-power-off',
-    command: () => signout()
+    //disabled="!selectedAttributes || !selectedAttributes.length
   }
 ])
 
@@ -273,69 +269,70 @@ const filters = ref({
 })
 
 onMounted(() => {
-  loadProjects()
+  loadEntity()
 })
 
-function loadProjects() {
-  fetch(`${BASE_URL}/projects/`)
+function loadEntity() {
+  fetch(`${BASE_URL}/entities/${route.params.id}`)
     .then((resp) => resp.json())
     .then((dados) => {
-      projectList.value = dados
+      entity.value = dados
     })
 }
 
-const getSeverity = (project) => {
-  if (project.published) {
+const getSeverity = (attribute) => {
+  if (attribute.published) {
     return 'success'
   } else {
     return 'warning'
   }
 }
 
-const createNewProject = () => {
-  project.value = {}
-  submitted.value = false
-  projectDialog.value = true
-}
-const hideDialog = () => {
-  projectDialog.value = false
-  submitted.value = false
+const createNewAttribute = () => {
+  attribute.value = {}
+  attributeDialog.value = true
 }
 
-const saveProject = () => {
-  submitted.value = true
+const editAttribute = (attribute) => {
+  attribute.value = { ...attribute }
+  attributeDialog.value = true
+}
 
-  const sanitizedObject = sanitize(_.cloneDeep(project.value))
-  const method = project.value.id ? 'PUT' : 'POST'
+const hideAttributeDialog = () => {
+  attributeDialog.value = false
+}
 
-  fetch(new Request(`${BASE_URL}/projects/${project.value.id ? project.value.id : ''}`), {
+const addAttribute = () => {
+  entity.value.properties.push(attribute.value)
+  attributeDialog.value = false
+  attribute.value = {}
+}
+
+const saveEntity = () => {
+  const method = entity.value.id ? 'PUT' : 'POST'
+
+  fetch(new Request(`${BASE_URL}/entities/${entity.value.id ? entity.value.id : ''}`), {
     method: method,
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(sanitizedObject)
+    body: JSON.stringify(entity.value)
   })
     .then((response) => {
       console.log(response)
       if (response.status == 200 || response.status == 201) {
-        loadProjects()
         toast.add({
           severity: 'success',
           summary: 'Successful',
-          detail: 'Project Updated',
+          detail: 'Tabela salva com sucesso.',
           life: 3000
         })
-        projectDialog.value = false
-        project.value = {}
+
         return response.json()
       } else {
         response.text().then((text) => console.error(text))
-        throw new Error('Não foi possível gravar o projeto, por favor tente mais tarde.')
+        throw new Error('Não foi possível gravar a tabela, por favor tente mais tarde.')
       }
-    })
-    .then((data) => {
-      console.log(data)
-      router.push(`/project/${data.id}`)
     })
     .catch((error) => {
       toast.add({
@@ -346,24 +343,21 @@ const saveProject = () => {
       })
     })
 }
-const editProject = (prod) => {
-  project.value = { ...prod }
-  projectDialog.value = true
+
+const confirmDeleteAttribute = (prod) => {
+  attribute.value = prod
+  deleteAttributeDialog.value = true
 }
-const confirmDeleteProject = (prod) => {
-  project.value = prod
-  deleteProjectDialog.value = true
-}
-const deleteProject = () => {
-  projects.value = projects.value.filter((val) => val.id !== project.value.id)
-  deleteProjectDialog.value = false
-  project.value = {}
-  toast.add({ severity: 'success', summary: 'Successful', detail: 'Project Deleted', life: 3000 })
+const deleteAttribute = () => {
+  attributes.value = attributes.value.filter((val) => val.id !== attribute.value.id)
+  deleteAttributeDialog.value = false
+  attribute.value = {}
+  toast.add({ severity: 'success', summary: 'Successful', detail: 'Attribute Deleted', life: 3000 })
 }
 const findIndexById = (id) => {
   let index = -1
-  for (let i = 0; i < projects.value.length; i++) {
-    if (projects.value[i].id === id) {
+  for (let i = 0; i < attributes.value.length; i++) {
+    if (attributes.value[i].id === id) {
       index = i
       break
     }
@@ -372,25 +366,27 @@ const findIndexById = (id) => {
   return index
 }
 
-const blacklist = ['isFocused']
-function sanitize(obj) {
-  Object.keys(obj).forEach(function (key) {
-    ;(blacklist.indexOf(key) >= 0 && delete obj[key]) ||
-      (obj[key] && typeof obj[key] === 'object' && sanitize(obj[key]))
-  })
-  return obj
-}
-
 const exportCSV = () => {
   dt.value.exportCSV()
 }
 const confirmDeleteSelected = () => {
-  deleteProjectsDialog.value = true
+  deleteAttributesDialog.value = true
 }
-const deleteSelectedProjects = () => {
-  projects.value = projects.value.filter((val) => !selectedProjects.value.includes(val))
-  deleteProjectsDialog.value = false
-  selectedProjects.value = null
-  toast.add({ severity: 'success', summary: 'Successful', detail: 'Projects Deleted', life: 3000 })
+const deleteSelectedAttributes = () => {
+  attributes.value = attributes.value.filter((val) => !selectedAttributes.value.includes(val))
+  deleteAttributesDialog.value = false
+  selectedAttributes.value = null
+  toast.add({
+    severity: 'success',
+    summary: 'Successful',
+    detail: 'Attributes Deleted',
+    life: 3000
+  })
+}
+const deleteSelectedEntities = () => {
+  entities.value = entities.value.filter((val) => !selectedEnties.value.includes(val))
+  deleteEnties.value = false
+  selectedEnties.value = null
+  toast.add({ severity: 'success', summary: 'Successful', detail: 'Enties Deleted', life: 3000 })
 }
 </script>

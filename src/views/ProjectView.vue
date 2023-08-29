@@ -42,6 +42,40 @@
         </template>
       </Column>
     </DataTable>
+    <DataTable
+      ref="dt"
+      :value="entityList"
+      v-model:selection="selectedEntities"
+      dataKey="id"
+      :paginator="true"
+      :rows="10"
+      :filters="filters"
+      tableStyle="min-width: 50rem"
+    >
+      <template #header>
+        <div class="flex flex-wrap gap-2 align-items-center justify-content-between">
+          <h4 class="m-0">Tabelas</h4>
+        </div>
+      </template>
+      <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
+      <Column field="name" header="Nome"></Column>
+      <Column field="description" header="Descrição"></Column>
+      <Column header="Status">
+        <template #body="slotProps">
+          <Tag
+            :value="slotProps.data.published ? 'Publicado' : 'Rascunho'"
+            :severity="getSeverity(slotProps.data)"
+          />
+        </template>
+      </Column>
+      <Column header="Status">
+        <template #body="slotProps">
+          <router-link :to="`/entity/${slotProps.data.id}`">
+            <Button label="Editar" icon="pi pi-edit" severity="primary" class="mr-2" />
+          </router-link>
+        </template>
+      </Column>
+    </DataTable>
     <Dialog
       v-model:visible="screenDialog"
       :style="{ width: '450px' }"
@@ -56,9 +90,9 @@
           v-model.trim="screen.name"
           required="true"
           autofocus
-          :class="{ 'p-invalid': submitted && !screen.name }"
+          autocomplete="off"
         />
-        <small class="p-error" v-if="submitted && !screen.name">Name is required.</small>
+        <small class="p-error" v-if="!screen.name">Name is required.</small>
       </div>
       <div class="field">
         <label for="description">Description</label>
@@ -151,8 +185,122 @@
         </div>
       </div>
       <template #footer>
-        <Button label="Cancel" icon="pi pi-times" text @click="hideDialog" />
-        <Button label="Save" icon="pi pi-check" text @click="saveScreen" />
+        <Button label="Cancelar" icon="pi pi-times" text @click="hideScreenDialog" />
+        <Button label="Adicionar" icon="pi pi-check" text @click="saveScreen" />
+      </template>
+    </Dialog>
+
+    <Dialog
+      v-model:visible="entityDialog"
+      :style="{ width: '450px' }"
+      header="Nova tabela"
+      :modal="true"
+      class="p-fluid"
+    >
+      <div class="field">
+        <label for="name">Name</label>
+        <InputText
+          id="name"
+          v-model.trim="entity.name"
+          required="true"
+          autofocus
+          autocomplete="off"
+        />
+        <small class="p-error" v-if="!entity.name">Name is required.</small>
+      </div>
+      <div class="field">
+        <label for="description">Description</label>
+        <Textarea
+          id="description"
+          v-model="entity.description"
+          required="true"
+          rows="3"
+          cols="20"
+        />
+      </div>
+
+      <div class="field">
+        <label for="inventoryStatus" class="mb-3">Inventory Status</label>
+        <Dropdown
+          id="inventoryStatus"
+          v-model="entity.inventoryStatus"
+          :options="statuses"
+          optionLabel="label"
+          placeholder="Select a Status"
+        >
+          <template #value="slotProps">
+            <div v-if="slotProps.value && slotProps.value.value">
+              <Tag
+                :value="slotProps.value.value"
+                :severity="getStatusLabel(slotProps.value.label)"
+              />
+            </div>
+            <div v-else-if="slotProps.value && !slotProps.value.value">
+              <Tag :value="slotProps.value" :severity="getStatusLabel(slotProps.value)" />
+            </div>
+            <span v-else>
+              {{ slotProps.placeholder }}
+            </span>
+          </template>
+        </Dropdown>
+      </div>
+
+      <div class="field">
+        <label class="mb-3">Category</label>
+        <div class="formgrid grid">
+          <div class="field-radiobutton col-6">
+            <RadioButton
+              id="category1"
+              name="category"
+              value="Accessories"
+              v-model="entity.category"
+            />
+            <label for="category1">Accessories</label>
+          </div>
+          <div class="field-radiobutton col-6">
+            <RadioButton
+              id="category2"
+              name="category"
+              value="Clothing"
+              v-model="entity.category"
+            />
+            <label for="category2">Clothing</label>
+          </div>
+          <div class="field-radiobutton col-6">
+            <RadioButton
+              id="category3"
+              name="category"
+              value="Electronics"
+              v-model="entity.category"
+            />
+            <label for="category3">Electronics</label>
+          </div>
+          <div class="field-radiobutton col-6">
+            <RadioButton id="category4" name="category" value="Fitness" v-model="entity.category" />
+            <label for="category4">Fitness</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="formgrid grid">
+        <div class="field col">
+          <label for="price">Price</label>
+          <InputNumber
+            id="price"
+            v-model="entity.price"
+            mode="currency"
+            currency="USD"
+            locale="en-US"
+          />
+        </div>
+        <div class="field col">
+          <label for="quantity">Quantity</label>
+          <InputNumber id="quantity" v-model="entity.quantity" integeronly />
+        </div>
+      </div>
+      <template #footer>
+        <Button label="Cancelar" icon="pi pi-times" text @click="hideEntityDialog" />
+        <Button label="Adicionar" icon="pi pi-check" text @click="saveEntity" />
       </template>
     </Dialog>
 
@@ -216,12 +364,15 @@ const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`
 const toast = useToast()
 const dt = ref()
 const screenDialog = ref(false)
+const entityDialog = ref(false)
 const deleteScreenDialog = ref(false)
 const deleteScreensDialog = ref(false)
 const screenList = ref([])
+const entityList = ref([])
 const screen = ref({})
+const entity = ref({})
 const selectedScreens = ref()
-const submitted = ref(false)
+const selectedEntities = ref()
 const router = useRouter()
 const route = useRoute()
 
@@ -230,6 +381,11 @@ const items = ref([
     label: 'Nova tela',
     icon: 'pi pi-fw pi-plus',
     command: () => createNewScreen()
+  },
+  {
+    label: 'Nova tabela',
+    icon: 'pi pi-fw pi-plus',
+    command: () => createNewEntity()
   },
   {
     label: 'Atualizar',
@@ -246,7 +402,7 @@ const items = ref([
     label: 'Exportar',
     icon: 'pi pi-fw pi-download',
     command: () => exportCSV()
-  },
+  }
 ])
 
 const statuses = ref([
@@ -261,6 +417,7 @@ const filters = ref({
 
 onMounted(() => {
   loadScreens()
+  loadEntities()
 })
 
 function loadScreens() {
@@ -268,6 +425,14 @@ function loadScreens() {
     .then((resp) => resp.json())
     .then((dados) => {
       screenList.value = dados
+    })
+}
+
+function loadEntities() {
+  fetch(`${BASE_URL}/entities/?project=${route.params.id}`)
+    .then((resp) => resp.json())
+    .then((dados) => {
+      entityList.value = dados
     })
 }
 
@@ -281,18 +446,20 @@ const getSeverity = (screen) => {
 
 const createNewScreen = () => {
   screen.value = { project_id: route.params.id }
-  submitted.value = false
   screenDialog.value = true
 }
-const hideDialog = () => {
+const createNewEntity = () => {
+  entity.value = { project_id: route.params.id }
+  entityDialog.value = true
+}
+const hideScreenDialog = () => {
   screenDialog.value = false
-  submitted.value = false
+}
+const hideEntityDialog = () => {
+  entityDialog.value = false
 }
 
 const saveScreen = () => {
-  submitted.value = true
-
-  const sanitizedObject = sanitize(_.cloneDeep(screen.value))
   const method = screen.value.id ? 'PUT' : 'POST'
 
   fetch(new Request(`${BASE_URL}/screens/${screen.value.id ? screen.value.id : ''}`), {
@@ -300,7 +467,7 @@ const saveScreen = () => {
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(sanitizedObject)
+    body: JSON.stringify(screen.value)
   })
     .then((response) => {
       console.log(response)
@@ -312,6 +479,8 @@ const saveScreen = () => {
           detail: 'Screen Updated',
           life: 3000
         })
+        screenDialog.value = false
+        screen.value = {}
         return response.json()
       } else {
         response.text().then((text) => console.error(text))
@@ -330,9 +499,48 @@ const saveScreen = () => {
         life: 30000
       })
     })
+}
 
-  screenDialog.value = false
-  screen.value = {}
+const saveEntity = () => {
+  const method = entity.value.id ? 'PUT' : 'POST'
+
+  fetch(new Request(`${BASE_URL}/entities/${entity.value.id ? entity.value.id : ''}`), {
+    method: method,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(entity.value)
+  })
+    .then((response) => {
+      console.log(response)
+      if (response.status == 200 || response.status == 201) {
+        loadEntities()
+        toast.add({
+          severity: 'success',
+          summary: 'Successful',
+          detail: 'Tabela atualizada',
+          life: 3000
+        })
+        entityDialog.value = false
+        entity.value = {}
+        return response.json()
+      } else {
+        response.text().then((text) => console.error(text))
+        throw new Error('Não foi possível gravar a tabela, por favor tente mais tarde.')
+      }
+    })
+    .then((data) => {
+      console.log(data)
+      router.push(`/entity/${data.id}`)
+    })
+    .catch((error) => {
+      toast.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: error,
+        life: 30000
+      })
+    })
 }
 const editScreen = (prod) => {
   screen.value = { ...prod }
@@ -360,15 +568,6 @@ const findIndexById = (id) => {
   return index
 }
 
-const blacklist = ['isFocused']
-function sanitize(obj) {
-  Object.keys(obj).forEach(function (key) {
-    ;(blacklist.indexOf(key) >= 0 && delete obj[key]) ||
-      (obj[key] && typeof obj[key] === 'object' && sanitize(obj[key]))
-  })
-  return obj
-}
-
 const exportCSV = () => {
   dt.value.exportCSV()
 }
@@ -380,5 +579,11 @@ const deleteSelectedScreens = () => {
   deleteScreensDialog.value = false
   selectedScreens.value = null
   toast.add({ severity: 'success', summary: 'Successful', detail: 'Screens Deleted', life: 3000 })
+}
+const deleteSelectedEntities = () => {
+  entities.value = entities.value.filter((val) => !selectedEnties.value.includes(val))
+  deleteEnties.value = false
+  selectedEnties.value = null
+  toast.add({ severity: 'success', summary: 'Successful', detail: 'Enties Deleted', life: 3000 })
 }
 </script>

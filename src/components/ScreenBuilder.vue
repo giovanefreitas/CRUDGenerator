@@ -62,7 +62,7 @@
             <label>Identificador</label>
             <input type="text" class="form-control" v-model="selectedField.name" />
           </div>
-          <div v-if="selectedField.type != 'table'" class="form-group">
+          <div v-if="selectedField.type != 'table' && selectedField.type != 'address'" class="form-group">
             <label>Coluna</label>
             <input type="text" class="form-control" v-model="selectedField.column" />
           </div>
@@ -239,47 +239,6 @@
           </div>
         </div>
 
-        <div
-          v-if="selectedField.type != 'grid' && selectedField.type != 'table'"
-          class="element-property"
-        >
-          <div class="row" v-for="subfield in selectedField.fields" :key="subfield.id">
-            <div class="col-sm-6">{{ subfield.label_display }}</div>
-            <div class="col-sm-6 col-padding">
-              <input type="text" class="form-control" v-model="subfield.label" />
-            </div>
-          </div>
-          <div
-            v-for="subfield in selectedField.fields"
-            class="element-property"
-            :key="subfield.id"
-          >
-            <label>{{ subfield.label_display }}</label>
-            <div>
-              <label class="switch">
-                <input type="checkbox" v-model="subfield.active" />
-
-                <div class="slider">
-                  <div
-                    class="switch-on"
-                    v-bind:class="{ 'switch-on-active': subfield.active !== false }"
-                  >
-                    ON
-                  </div>
-                  <div
-                    class="switch-off"
-                    v-bind:class="{
-                      'switch-off-active': subfield.active === true
-                    }"
-                  >
-                    OFF
-                  </div>
-                </div>
-              </label>
-            </div>
-          </div>
-        </div>
-
         <div v-if="selectedField.type" class="element-property">
           <label>Ocultar campo</label>
           <div>
@@ -352,7 +311,6 @@ ELEMENTO:
   widgetType: Tipo de input usado na interface do usuário
   name: variáveis e colunas
   label: exibição na tela do sistema gerado
-  label_display: exibição na tela do editor de formulários
   cols: Número de colunas que serão utilizadas em uma grade de 12 colunas
   placeholder: dica de tela exibida no sistema gerado
   tagname: tag html a ser usada
@@ -391,9 +349,8 @@ const ELEMENTS = {
     cols: 12,
     fields: [
       {
-        name: 'header',
+        name: 'titulo',
         label: 'Endereço',
-        label_display: 'Título da seção',
         type: 'header',
         tagname: 'h1',
         textalign: 'text-left',
@@ -404,7 +361,6 @@ const ELEMENTS = {
       {
         name: 'cep',
         label: 'CEP',
-        label_display: 'CEP',
         type: 'input',
         placeholder: 'CEP',
         cols: 4,
@@ -413,7 +369,6 @@ const ELEMENTS = {
       {
         name: 'logradouro',
         label: 'Logradouro',
-        label_display: 'Logradouro',
         type: 'input',
         placeholder: 'Logradouro',
         cols: 8,
@@ -422,7 +377,6 @@ const ELEMENTS = {
       {
         name: 'bairro',
         label: 'Bairro',
-        label_display: 'Bairro',
         type: 'input',
         placeholder: 'Bairro',
         cols: 5,
@@ -431,7 +385,6 @@ const ELEMENTS = {
       {
         name: 'municipio',
         label: 'Município',
-        label_display: 'Município',
         type: 'input',
         placeholder: 'municipio',
         cols: 5,
@@ -440,7 +393,6 @@ const ELEMENTS = {
       {
         name: 'uf',
         label: 'UF',
-        label_display: 'UF',
         type: 'input',
         placeholder: 'uf',
         cols: 2,
@@ -449,7 +401,6 @@ const ELEMENTS = {
       {
         name: 'pais',
         label: 'País',
-        label_display: 'País',
         type: 'input',
         placeholder: 'pais',
         cols: 6,
