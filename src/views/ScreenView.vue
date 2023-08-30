@@ -2,13 +2,14 @@
   <main>
     <Menubar :model="items">
       <template #start>
-        <img alt="logo" src="/src/assets/logo.svg" height="40" class="mr-2" />
+        <img alt="logo" src="/src/assets/logo.svg" height="40" class="mr-2 me-4" />
+        <span class="me-4 h3">{{ entity.label || entity.name }}</span>
       </template>
       <template #end>
         <Button @click="router.go(-1)">Fechar</Button>
       </template>
     </Menubar>
-    <ScreenBuilder :base-form="screen" />
+    <ScreenBuilder :screen="screen" :entity="entity" />
   </main>
 </template>
 
@@ -28,19 +29,25 @@ const items = ref([
   {
     label: 'Salvar',
     icon: 'pi pi-fw pi-plus',
-    command: () => saveScreen()
+    command: () => saveForm()
   }
 ])
 
 const route = useRoute()
 const router = useRouter()
 const screen = ref({})
+const entity = ref({})
 
 onMounted(() => {
   fetch(`${BASE_URL}/screens/${route.params.id}`)
     .then((resp) => resp.json())
-    .then((dados) => {
-      screen.value = dados
+    .then((screenData) => {
+      fetch(`${BASE_URL}/entities/${screenData.referenced_entity_id}`)
+        .then((res) => res.json())
+        .then((entityData) => {
+          screen.value = screenData
+          entity.value = entityData
+        })
     })
 })
 
@@ -51,6 +58,11 @@ function sanitize(obj) {
       (obj[key] && typeof obj[key] === 'object' && sanitize(obj[key]))
   })
   return obj
+}
+
+function saveForm() {
+  saveEntity()
+  saveScreen()
 }
 
 function saveScreen() {
@@ -71,6 +83,41 @@ function saveScreen() {
           severity: 'success',
           summary: 'Successful',
           detail: 'Screen Updated',
+          life: 3000
+        })
+        return response.json()
+      } else {
+        response.text().then((text) => console.error(text))
+        throw new Error('Não foi possível gravar a tela, por favor tente mais tarde.')
+      }
+    })
+    .catch((error) => {
+      toast.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: error,
+        life: 30000
+      })
+    })
+}
+
+function saveEntity() {
+  let method = entity.value.id ? 'PUT' : 'POST'
+
+  fetch(new Request(`${BASE_URL}/entities/${entity.value.id}`), {
+    method: method,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(entity.value)
+  })
+    .then((response) => {
+      console.log(response)
+      if (response.status == 200) {
+        toast.add({
+          severity: 'success',
+          summary: 'Successful',
+          detail: 'Entity Updated',
           life: 3000
         })
         return response.json()

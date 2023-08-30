@@ -19,7 +19,7 @@
 
       <div class="editor-area" @click.stop="limparSelecao">
         <grid-element
-          :fields="baseForm.fields"
+          :fields="screen.fields"
           v-on:elementFocus="elementFocus"
           v-on:deleteElement="deleteElement"
           parentRef="fields"
@@ -29,7 +29,15 @@
       </div>
 
       <div class="element-properties">
-        <div class="element-main-header">Properties</div>
+        <div v-if="!selectedField.type" class="element-main-header">Propriedades da Tela</div>
+        <div v-if="!selectedField.type" class="element-property">
+          <div class="form-group">
+            <label>Título</label>
+            <input type="text" class="form-control" v-model="entity.label" />
+          </div>
+        </div>
+
+        <div v-if="selectedField.type" class="element-main-header">Propriedades do campo</div>
         <div v-if="selectedField.type === 'header'" class="element-property">
           <div class="form-group">
             <label>Título</label>
@@ -55,14 +63,17 @@
           class="element-property"
         >
           <div class="form-group">
+            <label>Atributo</label>
+            <input type="text" class="form-control" v-model="selectedField.name" />
+          </div>
+          <div class="form-group">
             <label>Rótulo</label>
             <input type="text" class="form-control" v-model="selectedField.label" />
           </div>
-          <div class="form-group">
-            <label>Identificador</label>
-            <input type="text" class="form-control" v-model="selectedField.name" />
-          </div>
-          <div v-if="selectedField.type != 'table' && selectedField.type != 'address'" class="form-group">
+          <div
+            v-if="selectedField.type != 'table' && selectedField.type != 'address'"
+            class="form-group"
+          >
             <label>Coluna</label>
             <input type="text" class="form-control" v-model="selectedField.column" />
           </div>
@@ -303,7 +314,7 @@ import { nextTick, onMounted, ref, watch } from 'vue'
 
 import _ from 'lodash'
 
-const props = defineProps({ baseForm: { type: Object } })
+const props = defineProps({ screen: { type: Object }, entity: { type: Object } })
 
 /*
 ELEMENTO:
@@ -491,14 +502,14 @@ function elementFocus(field) {
 }
 
 function deleteElement(field, parentRef) {
-  const parent = _.get(props.baseForm, parentRef)
+  const parent = _.get(props.screen, parentRef)
   parent.splice(parent.indexOf(field), 1)
 }
 
 function receiveElement(element, newIndex, propRef) {
-  const parent = _.get(props.baseForm, propRef)
+  const parent = _.get(props.screen, propRef)
   console.log(propRef)
-  console.log(props.baseForm)
+  console.log(props.screen)
   console.log(parent)
 
   let novoItem = Object.assign(
@@ -552,7 +563,7 @@ function incializarSortable() {
     // update: function (event, ui) {
     //   if (ui.item.index() !== -1) {
     //     const propRef = event.target.getAttribute("data-prop-ref");
-    //     const parent = _.get(props.baseForm, propRef);
+    //     const parent = _.get(props.screen, propRef);
     //     var newIndex = ui.item.index();
 
     //     var oldIndex = parseInt(window.jQuery(this).attr("data-previndex"));

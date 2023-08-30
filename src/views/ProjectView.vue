@@ -84,7 +84,7 @@
       class="p-fluid"
     >
       <div class="field">
-        <label for="name">Name</label>
+        <label for="name">Nome (deve ser um identificador válido)</label>
         <InputText
           id="name"
           v-model.trim="screen.name"
@@ -92,97 +92,51 @@
           autofocus
           autocomplete="off"
         />
-        <small class="p-error" v-if="!screen.name">Name is required.</small>
+        <small class="p-error" v-if="!screen.name">O nome é obrigatório.</small>
       </div>
       <div class="field">
-        <label for="description">Description</label>
+        <label for="name">Título</label>
+        <InputText
+          id="label"
+          v-model.trim="screen.title"
+          required="true"
+          autofocus
+          autocomplete="off"
+        />
+        <small class="p-error" v-if="!screen.name">O título é obrigatório.</small>
+      </div>
+      <div class="field">
+        <label for="labelMenu">Rótulo no menu</label>
+        <InputText
+          id="labelMenu"
+          v-model.trim="screen.labelMenu"
+          required="true"
+          autofocus
+          autocomplete="off"
+        />
+      </div>
+      <div class="field">
+        <label for="subtitle">Descrição</label>
         <Textarea
-          id="description"
-          v-model="screen.description"
+          id="subtitle"
+          v-model="screen.subtitle"
           required="true"
           rows="3"
           cols="20"
         />
       </div>
-
       <div class="field">
-        <label for="inventoryStatus" class="mb-3">Inventory Status</label>
+        <label for="referencedEntity" class="mb-3">Entidade manipulada</label>
         <Dropdown
-          id="inventoryStatus"
-          v-model="screen.inventoryStatus"
-          :options="statuses"
-          optionLabel="label"
-          placeholder="Select a Status"
+          id="referencedEntity"
+          v-model="screen.referencedEntity"
+          :options="entityList"
+          optionLabel="name"
+          placeholder="Criar uma nova entidade"
+          showClear
         >
-          <template #value="slotProps">
-            <div v-if="slotProps.value && slotProps.value.value">
-              <Tag
-                :value="slotProps.value.value"
-                :severity="getStatusLabel(slotProps.value.label)"
-              />
-            </div>
-            <div v-else-if="slotProps.value && !slotProps.value.value">
-              <Tag :value="slotProps.value" :severity="getStatusLabel(slotProps.value)" />
-            </div>
-            <span v-else>
-              {{ slotProps.placeholder }}
-            </span>
-          </template>
+          
         </Dropdown>
-      </div>
-
-      <div class="field">
-        <label class="mb-3">Category</label>
-        <div class="formgrid grid">
-          <div class="field-radiobutton col-6">
-            <RadioButton
-              id="category1"
-              name="category"
-              value="Accessories"
-              v-model="screen.category"
-            />
-            <label for="category1">Accessories</label>
-          </div>
-          <div class="field-radiobutton col-6">
-            <RadioButton
-              id="category2"
-              name="category"
-              value="Clothing"
-              v-model="screen.category"
-            />
-            <label for="category2">Clothing</label>
-          </div>
-          <div class="field-radiobutton col-6">
-            <RadioButton
-              id="category3"
-              name="category"
-              value="Electronics"
-              v-model="screen.category"
-            />
-            <label for="category3">Electronics</label>
-          </div>
-          <div class="field-radiobutton col-6">
-            <RadioButton id="category4" name="category" value="Fitness" v-model="screen.category" />
-            <label for="category4">Fitness</label>
-          </div>
-        </div>
-      </div>
-
-      <div class="formgrid grid">
-        <div class="field col">
-          <label for="price">Price</label>
-          <InputNumber
-            id="price"
-            v-model="screen.price"
-            mode="currency"
-            currency="USD"
-            locale="en-US"
-          />
-        </div>
-        <div class="field col">
-          <label for="quantity">Quantity</label>
-          <InputNumber id="quantity" v-model="screen.quantity" integeronly />
-        </div>
       </div>
       <template #footer>
         <Button label="Cancelar" icon="pi pi-times" text @click="hideScreenDialog" />
@@ -338,6 +292,27 @@
         <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedScreens" />
       </template>
     </Dialog>
+
+    <Dialog
+      v-model:visible="classDiagramDialog"
+      :style="{ width: '450px' }"
+      header="Confirm"
+      :modal="true"
+      maximizable
+      :pt="{
+        header: (options) => {
+          options.state.maximized = true;
+          console.log('Passei aqui.')
+        },
+      }"
+    >
+      <div class="confirmation-content">
+        <ClassDiagram></ClassDiagram>
+      </div>
+      <template #footer>
+        <Button label="Fechar" icon="pi pi-times" text @click="classDiagramDialog = false" />
+      </template>
+    </Dialog>
   </main>
 </template>
 
@@ -359,6 +334,7 @@ import Dialog from 'primevue/dialog'
 import { FilterMatchMode } from 'primevue/api'
 import _ from 'lodash'
 import { useRoute, useRouter } from 'vue-router'
+import ClassDiagram from '../components/internal/ClassDiagram.vue'
 
 const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`
 const toast = useToast()
@@ -367,6 +343,7 @@ const screenDialog = ref(false)
 const entityDialog = ref(false)
 const deleteScreenDialog = ref(false)
 const deleteScreensDialog = ref(false)
+const classDiagramDialog = ref(false)
 const screenList = ref([])
 const entityList = ref([])
 const screen = ref({})
@@ -402,6 +379,11 @@ const items = ref([
     label: 'Exportar',
     icon: 'pi pi-fw pi-download',
     command: () => exportCSV()
+  },
+  {
+    label: 'Diagrama entidades',
+    icon: 'pi pi-fw pi-download',
+    command: () => showClassDiagram()
   }
 ])
 
@@ -462,12 +444,16 @@ const hideEntityDialog = () => {
 const saveScreen = () => {
   const method = screen.value.id ? 'PUT' : 'POST'
 
+  const newScreen = _.cloneDeep(screen.value);
+  newScreen.referenced_entity_id = newScreen.referencedEntity.id;
+  delete newScreen.referencedEntity;
+
   fetch(new Request(`${BASE_URL}/screens/${screen.value.id ? screen.value.id : ''}`), {
     method: method,
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(screen.value)
+    body: JSON.stringify(newScreen)
   })
     .then((response) => {
       console.log(response)
@@ -585,5 +571,9 @@ const deleteSelectedEntities = () => {
   deleteEnties.value = false
   selectedEnties.value = null
   toast.add({ severity: 'success', summary: 'Successful', detail: 'Enties Deleted', life: 3000 })
+}
+
+const showClassDiagram = () => {
+  classDiagramDialog.value = true
 }
 </script>
