@@ -106,10 +106,10 @@
         <small class="p-error" v-if="!screen.name">O título é obrigatório.</small>
       </div>
       <div class="field">
-        <label for="labelMenu">Rótulo no menu</label>
+        <label for="menuLabel">Rótulo no menu</label>
         <InputText
-          id="labelMenu"
-          v-model.trim="screen.labelMenu"
+          id="menuLabel"
+          v-model.trim="screen.menuLabel"
           required="true"
           autofocus
           autocomplete="off"
@@ -445,8 +445,10 @@ const saveScreen = () => {
   const method = screen.value.id ? 'PUT' : 'POST'
 
   const newScreen = _.cloneDeep(screen.value);
-  newScreen.referenced_entity_id = newScreen.referencedEntity.id;
-  delete newScreen.referencedEntity;
+  if (newScreen.referencedEntity){
+    newScreen.referenced_entity_id = newScreen.referencedEntity.id;
+    delete newScreen.referencedEntity;
+  }
 
   fetch(new Request(`${BASE_URL}/screens/${screen.value.id ? screen.value.id : ''}`), {
     method: method,

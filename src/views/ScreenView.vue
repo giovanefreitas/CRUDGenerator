@@ -45,6 +45,7 @@ onMounted(() => {
       fetch(`${BASE_URL}/entities/${screenData.referenced_entity_id}`)
         .then((res) => res.json())
         .then((entityData) => {
+          screenData.referencedEntity = entityData
           screen.value = screenData
           entity.value = entityData
         })
