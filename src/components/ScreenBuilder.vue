@@ -31,50 +31,25 @@
       <PropertiesPanel
         :selected-field="selectedField"
         :screen="screen"
+        :entity-list="entityList"
       ></PropertiesPanel>
-    </div>
-  </div>
-  <!-- Modal -->
-  <div
-    class="modal fade"
-    id="tableEditor"
-    tabindex="-1"
-    aria-labelledby="tableEditorLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content w-100">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="tableEditorLabel">
-            Editar tabela {{ selectedField.name }}
-          </h1>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <AttributesTable :fields="selectedField.fields" />
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fechar</button>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import GridElement from './elements/GridElement.vue'
-import AttributesTable from './internal/AttributesTable.vue'
 import PropertiesPanel from './internal/PropertiesPanel.vue'
 import { nextTick, onMounted, ref, watch } from 'vue'
 
 import _ from 'lodash'
 
 const props = defineProps({ screen: { type: Object }, entity: { type: Object } })
+
+const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`
+
+const selectedField = ref({})
+const entityList = ref([])
 
 /*
 ELEMENTO:
@@ -245,12 +220,22 @@ const ELEMENTS = {
   }
 }
 
-const selectedField = ref({})
-
 watch(props, async (newValue, oldValue) => {
-  console.log('incializarSortable')
-  incializarSortable()
+  if (newValue != oldValue) {
+    console.log(JSON.stringify(newValue), JSON.stringify(oldValue))
+    console.log('incializarSortable')
+    incializarSortable()
+    loadEntities()
+  }
 })
+
+function loadEntities() {
+  fetch(`${BASE_URL}/entities/?project=${props.screen.project_id}`)
+    .then((resp) => resp.json())
+    .then((dados) => {
+      entityList.value = dados
+    })
+}
 
 function elementFocus(field) {
   console.log(field)
@@ -339,6 +324,8 @@ function incializarSortable() {
 }
 
 onMounted(() => {
+  incializarSortable()
+  loadEntities()
   window.jQuery('.element-template').draggable({
     connectToSortable: '.drop-target',
     helper: 'clone',

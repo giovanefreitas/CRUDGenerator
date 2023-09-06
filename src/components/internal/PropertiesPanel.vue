@@ -19,15 +19,14 @@
         <label for="referencedEntity" class="mb-3">Entidade manipulada</label>
         <Dropdown
           id="referencedEntity"
+          class="w-100"
           v-model="screen.referencedEntity"
           :options="entityList"
           optionLabel="name"
           placeholder="Criar uma nova entidade"
-          showClear
         >
         </Dropdown>
       </div>
-      <span>Entidades: {{ entityList }}</span>
     </div>
 
     <div v-if="selectedField.type" class="element-main-header">Propriedades do campo</div>
@@ -49,18 +48,29 @@
     >
       <div class="form-group">
         <label>Atributo</label>
-        <input type="text" class="form-control" v-model="selectedField.name" />
+        <div class="input-group mb-3">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Selecione um atributo"
+            aria-label="Selecione um atributo"
+            aria-describedby="button-addon2"
+            disabled
+          />
+          <button
+            class="btn btn-outline-secondary"
+            type="button"
+            id="button-addon2"
+            data-bs-toggle="modal"
+            data-bs-target="#entityEditor"
+          >
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
       </div>
       <div class="form-group">
         <label>Rótulo</label>
         <input type="text" class="form-control" v-model="selectedField.label" />
-      </div>
-      <div
-        v-if="selectedField.type != 'table' && selectedField.type != 'address'"
-        class="form-group"
-      >
-        <label>Coluna</label>
-        <input type="text" class="form-control" v-model="selectedField.column" />
       </div>
       <div v-if="selectedField.type == 'relationship'" class="form-group">
         <label>Tipo de entrada</label>
@@ -71,33 +81,17 @@
       </div>
       <div v-if="selectedField.type == 'relationship'" class="form-group">
         <label>Entidade referenciada</label>
-        <input type="text" class="form-control" v-model="selectedField.referencedEntity" />
-      </div>
-      <div v-if="selectedField.type == 'relationship'" class="form-group">
-        <label>Schema referenciado</label>
-        <input type="text" class="form-control" v-model="selectedField.referencedSchema" />
-      </div>
-      <div v-if="selectedField.type == 'relationship'" class="form-group">
-        <label>Tabela referenciada</label>
-        <input type="text" class="form-control" v-model="selectedField.referencedTable" />
-      </div>
-      <div v-if="selectedField.type == 'relationship'" class="form-group">
-        <label>Coluna referenciada</label>
-        <input type="text" class="form-control" v-model="selectedField.referencedColumn" />
-      </div>
-      <div v-if="selectedField.type == 'relationship'" class="form-group">
-        <label>Coluna de descrição e busca</label>
-        <input type="text" class="form-control" v-model="selectedField.referencedDescribeColumn" />
+        <input
+          type="text"
+          class="form-control"
+          v-model="selectedField.attribute.referencedEntity"
+        />
       </div>
     </div>
-    <div v-if="selectedField.type === 'table'" class="element-property">
+    <div v-if="selectedField.type === 'table' && selectedField.attribute" class="element-property">
       <div class="form-group">
         <label>Entidade</label>
-        <input type="text" class="form-control" v-model="selectedField.entity" />
-      </div>
-      <div class="form-group">
-        <label>Tabela</label>
-        <input type="text" class="form-control" v-model="selectedField.table" />
+        <input type="text" class="form-control" v-model="selectedField.attribute.entity" />
       </div>
       <button
         type="button"
@@ -253,41 +247,78 @@
         </label>
       </div>
     </div>
+
+    <!-- Modal de Tabela -->
+    <div
+      class="modal fade"
+      id="tableEditor"
+      tabindex="-1"
+      aria-labelledby="tableEditorLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content w-100">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="tableEditorLabel">
+              Editar tabela {{ selectedField.name }}
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <AttributesTable :fields="selectedField.fields" />
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Atributos -->
+    <div
+      v-if="screen.referencedEntity"
+      class="modal fade"
+      id="entityEditor"
+      tabindex="-1"
+      aria-labelledby="entityEditorLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content w-100">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="entityEditorLabel">
+              Editar tabela {{ selectedField.name }}
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <AttributesTable :fields="screen.referencedEntity.properties" />
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script setup>
-import { onMounted, ref, watch } from 'vue'
 import Dropdown from 'primevue/dropdown'
+import AttributesTable from './AttributesTable.vue'
 
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`
-
-const entityList = ref([])
-
-const props = defineProps({
+defineProps({
   selectedField: { type: Object, required: true },
-  screen: { type: Object, required: true }
+  screen: { type: Object, required: true },
+  entityList: { type: Array, requied: true }
 })
-
-onMounted(() => {
-  console.log('Entity', props.screen)
-  if (props.screen?.project_id) {
-    loadEntities()
-  }
-})
-
-watch(props.screen, async (newScreen, oldScreen) => {
-  console.log('Entity', newScreen)
-  if (newScreen?.project_id) {
-    loadEntities()
-  }
-})
-
-function loadEntities() {
-  fetch(`${BASE_URL}/entities/?project=${props.screen.project_id}`)
-    .then((resp) => resp.json())
-    .then((dados) => {
-      entityList.value = dados
-    })
-}
-
 </script>

@@ -1,12 +1,7 @@
 <template>
   <div>
     <h5>{{ field.label }}</h5>
-    <DataTable
-      :value="products"
-      :reorderableColumns="true"
-      @columnReorder="onColReorder"
-      tableStyle="min-width: 50rem"
-    >
+    <DataTable :value="products" :reorderableColumns="true" @columnReorder="onColReorder">
       <Column
         v-for="col of columns"
         :field="col.field"
@@ -53,11 +48,7 @@ watch(
 
 const onColReorder = (dragEvent) => {
   console.log(dragEvent)
-  props.field.fields = moveArrayItem(
-    props.field.fields,
-    dragEvent.dragIndex,
-    dragEvent.dropIndex
-  )
+  props.field.fields = moveArrayItem(props.field.fields, dragEvent.dragIndex, dragEvent.dropIndex)
   console.log(String(props.field.fields.map((item) => item.name)))
 }
 

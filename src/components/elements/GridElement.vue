@@ -11,7 +11,7 @@
       <div
         v-for="(field, index) in fields"
         :key="field.id"
-        :class="`col-sm-12 col-md-6 col-xl-${field.cols} field-element`"
+        :class="`col-sm-12 col-md-12 col-xl-${field.cols} field-element`"
         v-on:click.stop="$emit('elementFocus', field)"
       >
         <div v-if="allowEdit" class="icon-move">
