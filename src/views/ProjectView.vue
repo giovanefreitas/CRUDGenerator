@@ -367,7 +367,7 @@ const items = ref([
   {
     label: 'Atualizar',
     icon: 'pi pi-fw pi-refresh',
-    command: () => loadScreens()
+    command: () => refresh()
   },
   {
     label: 'Excluir',
@@ -401,6 +401,11 @@ onMounted(() => {
   loadScreens()
   loadEntities()
 })
+
+function refresh(){
+  loadScreens()
+  loadEntities()
+}
 
 function loadScreens() {
   fetch(`${BASE_URL}/screens/?project=${route.params.id}`)

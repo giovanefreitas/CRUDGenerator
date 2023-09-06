@@ -23,7 +23,7 @@
     <table class="table">
       <thead>
         <tr>
-          <th scope="col">
+          <th scope="col" v-if="multipleSelection">
             <a href="#" @click="selectAllColumns">Todos</a>
             <span class="ms-2 me-2">/</span>
             <a href="#" @click="deselectAllColumns">Nenhum</a>
@@ -32,12 +32,13 @@
           <th scope="col">Nome da Coluna</th>
           <th scope="col">Rótulo</th>
           <th scope="col">Tipo</th>
+          <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
         <template v-for="(field, index) of fields" :key="field.id">
           <tr v-if="field.type != 'table'">
-            <th scope="row">
+            <th scope="row" v-if="multipleSelection">
               <input
                 type="checkbox"
                 class="form-check-input"
@@ -84,6 +85,9 @@
                 <option value="relationship">Relacionamento</option>
               </select>
             </td>
+            <td>
+              <button class="btn btn-outline-primary">Selecionar</button>
+            </td>
           </tr>
         </template>
       </tbody>
@@ -93,7 +97,8 @@
 <script setup>
 const props = defineProps({
   fields: { type: Object, required: false },
-  disabled: { type: Boolean, default: false }
+  disabled: { type: Boolean, default: false },
+  multipleSelection: { type: Boolean, default: false}
 })
 
 function addNewAttribute() {
