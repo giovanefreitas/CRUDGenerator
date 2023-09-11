@@ -160,49 +160,7 @@ a {
 #droppable {
   padding: 25px;
 }
-/*
-@keyframes circle-ripple-1 {
-  0% {
-    border-radius: 30px;
-    height: 54px;
-    left: 86;
-    opacity: 0.5;
-    top: 0;
-    width: 54px;
-  }
 
-  50%,
-  100% {
-    border-radius: 41px;
-    height: 84px;
-    left: 70px;
-    opacity: 0;
-    top: -15px;
-    width: 84px;
-  }
-}
-
-@keyframes circle-ripple-2 {
-  0% {
-    border-radius: 30px;
-    height: 54px;
-    left: 86;
-    opacity: 0.5;
-    top: 0;
-    width: 54px;
-  }
-
-  50%,
-  100% {
-    border-radius: 41px;
-    height: 84px;
-    left: 70px;
-    opacity: 0;
-    top: -15px;
-    width: 84px;
-  }
-}
-*/
 .editable {
   cursor: default;
   display: inline-block;
@@ -568,19 +526,6 @@ input:checked + .slider:before {
 }
 
 .element-grid .element-grid {
-  /*background-color: #fff;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  margin: 5px 5px 5px 5px;
-  padding: 45px 0px;*/
-  /*
-  background-color: transparent;
-  border: red solid 2px;
-  border-style: dashed;
-  display: block !important;
-  visibility: visible !important;
-  margin: 10px;
-*/
-
   background-color: #fff;
   border: 2px dashed #eee;
   border-radius: 5px;

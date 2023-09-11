@@ -3,13 +3,15 @@
     <Menubar :model="items">
       <template #start>
         <img alt="logo" src="/src/assets/logo.svg" height="40" class="mr-2 me-4" />
-        <span class="me-4 h3">{{ entity.label || entity.name }}</span>
+        <span class="me-4 h3">{{
+          screen.referencedEntity.label || screen.referencedEntity.name
+        }}</span>
       </template>
       <template #end>
         <Button @click="router.go(-1)">Fechar</Button>
       </template>
     </Menubar>
-    <ScreenBuilder :screen="screen" :entity="entity" />
+    <ScreenBuilder :screen="screen" :entity-list="entityList" />
   </main>
 </template>
 
@@ -35,19 +37,19 @@ const items = ref([
 
 const route = useRoute()
 const router = useRouter()
-const screen = ref({})
-const entity = ref({})
+const screen = ref({ referencedEntity: {} })
+const entityList = ref([])
 
 onMounted(() => {
   fetch(`${BASE_URL}/screens/${route.params.id}`)
     .then((resp) => resp.json())
-    .then((screenData) => {
+    .then(async (screenData) => {
+      await loadEntities(screenData.project_id)
       fetch(`${BASE_URL}/entities/${screenData.referenced_entity_id}`)
         .then((res) => res.json())
         .then((entityData) => {
           screenData.referencedEntity = entityData
           screen.value = screenData
-          entity.value = entityData
         })
     })
 })
@@ -64,6 +66,23 @@ function sanitize(obj) {
 function saveForm() {
   saveEntity()
   saveScreen()
+}
+
+async function loadEntities(project_id) {
+  fetch(`${BASE_URL}/entities/?project=${project_id}`)
+    .then((resp) => resp.json())
+    .then((dados) => {
+      entityList.value = dados
+    })
+    .catch((err) => {
+      console.error(err)
+      toast.add({
+        severity: 'error',
+        summary: 'Erro',
+        detail: err,
+        life: 30000
+      })
+    })
 }
 
 function saveScreen() {

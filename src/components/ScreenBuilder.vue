@@ -29,6 +29,7 @@
       </div>
 
       <PropertiesPanel
+        v-if="entityList.length > 0"
         :selected-field="selectedField"
         :screen="screen"
         :entity-list="entityList"
@@ -41,15 +42,11 @@
 import GridElement from './elements/GridElement.vue'
 import PropertiesPanel from './internal/PropertiesPanel.vue'
 import { nextTick, onMounted, ref, watch } from 'vue'
-
 import _ from 'lodash'
 
-const props = defineProps({ screen: { type: Object }, entity: { type: Object } })
-
-const BASE_URL = `${import.meta.env.VITE_API_BASE_URL}`
+const props = defineProps({ screen: { type: Object }, entityList: { type: Object } })
 
 const selectedField = ref({})
-const entityList = ref([])
 
 /*
 ELEMENTO:
@@ -225,17 +222,8 @@ watch(props, async (newValue, oldValue) => {
     console.log(JSON.stringify(newValue), JSON.stringify(oldValue))
     console.log('incializarSortable')
     incializarSortable()
-    loadEntities()
   }
 })
-
-function loadEntities() {
-  fetch(`${BASE_URL}/entities/?project=${props.screen.project_id}`)
-    .then((resp) => resp.json())
-    .then((dados) => {
-      entityList.value = dados
-    })
-}
 
 function elementFocus(field) {
   console.log(field)
@@ -325,7 +313,6 @@ function incializarSortable() {
 
 onMounted(() => {
   incializarSortable()
-  loadEntities()
   window.jQuery('.element-template').draggable({
     connectToSortable: '.drop-target',
     helper: 'clone',

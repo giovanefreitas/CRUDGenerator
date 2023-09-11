@@ -86,7 +86,9 @@
               </select>
             </td>
             <td>
-              <button class="btn btn-outline-primary">Selecionar</button>
+              <button class="btn btn-outline-primary" @click="emit('selectAttribute', field)">
+                Selecionar
+              </button>
             </td>
           </tr>
         </template>
@@ -98,8 +100,10 @@
 const props = defineProps({
   fields: { type: Object, required: false },
   disabled: { type: Boolean, default: false },
-  multipleSelection: { type: Boolean, default: false}
+  multipleSelection: { type: Boolean, default: false }
 })
+
+const emit = defineEmits(['selectAttribute']);
 
 function addNewAttribute() {
   props.fields.push({})
